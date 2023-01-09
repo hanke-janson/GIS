@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        viewer = new Cesium.Viewer("cesiumContainer", {
+                animation: false, // 隐藏动画控件
+                baseLayerPicker: false, // 隐藏图层选择控件
+                fullscreenButton: false, // 隐藏全屏按钮
+                vrButton: false, // 隐藏VR按钮，默认false
+                geocoder: false, // 隐藏地名查找控件
+                homeButton: false, // 隐藏Home按钮
+                infoBox: false, // 隐藏点击要素之后显示的信息窗口
+                sceneModePicker: false, // 隐藏场景模式选择控件
+                selectionIndicator: true, // 显示实体对象选择框，默认true
+                timeline: false, // 隐藏时间线控件
+                navigationHelpButton: false, // 隐藏帮助按钮
+                scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+                shouldAnimate: true, // 开启动画自动播放
+                sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+                requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+                // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+                maximumRenderTimeChange: Infinity,
+                imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                    url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                    maximumLevel: 14,
+                })
+            })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        viewer.camera.setView({
+                destination: Cesium.Rectangle.fromDegrees(89.5, 20.4, 110.4, 61.2)
+            });
+        var urls = [
+            "./sate/SATE_L1_F2G_VISSR_MWB_NOM_FDI-201906171300.HDF.png",
+            "./sate/SATE_L1_F2G_VISSR_MWB_NOM_FDI-201906171400.HDF.png",
+            "./sate/SATE_L1_F2G_VISSR_MWB_NOM_FDI-201906171500.HDF.png",
+            "./sate/SATE_L1_F2G_VISSR_MWB_NOM_FDI-201906171600.HDF.png",
+        ];
+        var i = 0;
+        viewer.entities.add({
+
+            // 全球贴图
+            rectangle: {
+                coordinates: Cesium.Rectangle.fromDegrees(-180.0, -90.0, 180.0, 90.0),
+                material: new Cesium.ImageMaterialProperty({
+                    image: new Cesium.CallbackProperty(function () {
+                        return urls[i];
+                    })
+                }),
+                color: Cesium.Color.WHITE.withAlpha(0.6) // 这里的颜色不会对图片材质造成影像
+            },
+        });
+        setInterval(function () {
+            i++;
+            if (i == urls.length - 1) {
+                i = 0;
+            }
+        }, 1000);
+
+
+        // // cesium监听地图缩放，控制地图内容的显示不同
+        //  viewer.scene.camera.moveEnd.addEventListener(function () {
+        //         // 获取相机高度
+        //         //获取当前相机高度
+        //         height = Math.ceil(viewer.camera.positionCartographic.height);
+        //         var currentMagnitude = viewer.camera.getMagnitude();
+        //         console.log('currentMagnitude - ' + currentMagnitude);
+        //         if(height > 100000){
+        //             var i = 0;
+        //             viewer.entities.add({
+        //                 // 全球贴图
+        //                 rectangle: {
+        //                     coordinates: Cesium.Rectangle.fromDegrees(-180.0, -90.0, 180.0, 90.0),
+        //                     material: new Cesium.ImageMaterialProperty({
+        //                         image: new Cesium.CallbackProperty(function () {
+        //                             return urls[i];
+        //                         })
+        //                     }),
+        //                     color: Cesium.Color.WHITE.withAlpha(0.6) // 这里的颜色不会对图片材质造成影像
+        //                 },
+        //             });
+        //             setInterval(function () {
+        //                 i++;
+        //                 if (i == urls.length) {
+        //                     i = 0;
+        //                 }
+        //             }, 1000);
+        //         }else {
+                    
+        //         }
+        //     })
+
+
+
+
+
+
+
+
+        // // 效果有点迷
+        // function LoadClouds() {
+        //     const worldRectangle1 = viewer.scene.primitives.add(new Cesium.Primitive({
+        //         geometryInstances: new Cesium.GeometryInstance({
+        //             geometry: new Cesium.RectangleGeometry({
+        //                 rectangle: Cesium.Rectangle.fromDegrees(-180.0, -90.0, 180.0, 90.0),
+        //                 vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
+        //             })
+        //         }),
+        //         appearance: new Cesium.EllipsoidSurfaceAppearance({
+        //             material: new Cesium.Material({
+        //                 fabric: {
+        //                     type: 'Image',
+        //                     uniforms: {
+        //                         image: './sate/SATE_L1_F2G_VISSR_MWB_NOM_FDI-201906171600.HDF.png',
+        //                         radians: 0,
+        //                     },
+        //                     //shader
+        //                     source: `
+        //       #define M_PI 3.1415926535897932384626433832795
+  
+        //       uniform sampler2D image;
+        //       uniform float radians;
+              
+        //       czm_material czm_getMaterial(czm_materialInput materialInput)
+        //       {
+        //         czm_material material = czm_getDefaultMaterial(materialInput);
+        //         vec2 st = vec2(materialInput.st.x - 0.5, materialInput.st.y - 0.5);
+        //         float alpha = 1.3 - st.x - 0.5;
+        //         float current_radians = atan(st.y, st.x);
+        //         float radius = sqrt(st.x * st.x + st.y * st.y);
+        //         if (radius < 0.50) {
+        //           current_radians = current_radians - radians;
+        //           st = vec2(cos(current_radians) * radius, sin(current_radians) * radius);
+        //           st = vec2(st.x + 0.5, st.y + 0.5);
+        //           vec4 colorImage = texture2D(image, st);
+        //           material.diffuse = colorImage.rgb;
+        //           material.alpha = colorImage.a * alpha;
+        //         } else {
+        //           material.alpha = 0.0;
+        //         }
+  
+        //         return material;
+        //       }
+        //       `
+        //                 }
+        //             }),
+        //             aboveGround: true
+        //         }),
+        //         show: true
+        //     }))
+        //     var radians = 0
+        //     viewer.scene.postRender.addEventListener(() => {
+        //         radians += Math.PI / 50000;
+        //         worldRectangle1.appearance.material.uniforms.radians = radians;
+        //     });
+        // }
+        // LoadClouds();
+
+
+
+
+
+
+
+
+        // // 贴图到地球指定位置上
+        // // 设置要展示的范围
+        // var positions = [
+        //     Cesium.Cartesian3.fromDegrees(50, 0),
+        //     Cesium.Cartesian3.fromDegrees(145, 0),
+        //     Cesium.Cartesian3.fromDegrees(145, 60),
+        //     Cesium.Cartesian3.fromDegrees(50, 60)
+        // ];
+        // // 添加 polygon
+        // viewer.entities.add({
+        //     polygon: {
+        //         hierarchy: new Cesium.PolygonHierarchy(positions),
+        //         material: urls
+        //     }
+        // });
+    </script>
+</body>
+
+</html>

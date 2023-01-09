@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <!-- 调整模型方向https://blog.csdn.net/linzi19900517/article/details/127563211 -->
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            shouldAnimate: true, // （非常重要） 设置true是为了动画可以自动播放
+            animation: true, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: false, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: true, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            maximumRenderTimeChange: Infinity,
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                maximumLevel: 14,
+            })
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        viewer.timeline.container.style.display = 'none';
+        // // viewer.camera.heading
+        // // 相机飞入角度
+        // // 设置相机角度
+        // // heading - 代表镜头左右方向, 正值为右, 负值为左, 360度和0度是一样的
+        // // pitch - 代表镜头上下方向, 正值为上, 负值为下.
+        // // roll - 代表镜头左右倾斜.正值, 向右倾斜, 负值向左倾斜
+        // viewer.camera.flyTo({
+        //     destination: new Cesium.Cartesian3(-3082074.0839866344, 5780427.607466951, 3038518.084876725),
+        //     orientation: {
+        //         heading: 0.21845403292776666,
+        //         pitch: -1.570424085631045,
+        //         roll: 0.0
+        //     }
+        // });
+        // 调用
+        getClickPointAdd(this.viewer);
+
+        /**
+         * @description: 获取当前鼠标点击位置坐标
+         * @param {*} _viewer
+         * @return {*}
+         */
+        function getClickPointAdd(_viewer) {
+            // 注册屏幕点击事件
+            let handler = new Cesium.ScreenSpaceEventHandler(_viewer.scene.canvas);
+            handler.setInputAction(function (event) {
+                // 转换为不包含地形的笛卡尔坐标
+                let clickPosition = _viewer.scene.camera.pickEllipsoid(event.position);
+                // 转经纬度（弧度）坐标
+                let radiansPos = Cesium.Cartographic.fromCartesian(clickPosition);
+                // 转角度
+                console.log("经度：" + Cesium.Math.toDegrees(radiansPos.longitude) + ", 纬度：" + Cesium.Math.toDegrees(radiansPos.latitude));
+                // // 添加点
+                // _viewer.entities.add({
+                //     position: clickPosition,
+                //     point: {
+                //         color: Cesium.Color.YELLOW,
+                //         pixelSize: 30
+                //     }
+                // })
+            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        }
+
+        // 时间轴设置
+        start = Cesium.JulianDate.fromDate(new Date());  // 设置时间轴当前时间为开始时间
+        start = Cesium.JulianDate.addHours(start, 8, new Cesium.JulianDate());   // 开始时间加8小时改为北京时间
+        stop = Cesium.JulianDate.addSeconds(start, 400, new Cesium.JulianDate());   // 设置结束时间为开始时间加400秒
+        // 设置时钟开始时间
+        viewer.clock.startTime = start.clone();
+        // 设置时钟当前时间
+        viewer.clock.currentTime = start.clone();
+        // 设置时钟结束时间
+        viewer.clock.stopTime = stop.clone();
+        // 时间速率，数字越大时间过的越快，设置1好像是和实际时间一样
+        viewer.clock.multiplier = 1;
+        // 时间轴绑定到viewer上去
+        viewer.timeline.zoomTo(start, stop);
+        // 循环执行，到达终止时间，重新从起点时间开始
+        viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
+
+        // 船舰位置信息
+        data = [{ longitude: 120.998994, dimension: 32.66277, height: 0, time: 0 }, { longitude: 122.507572, dimension: 31.570649, height: 0, time: 180 }, { longitude: 122.158023, dimension: 30.493342, height: 0, time: 400 }]
+
+
+        // 时间轴与船舰位置绑定
+        function computeFlight(source) {
+            let property = new Cesium.SampledPositionProperty();
+            for (let i = 0; i < source.length; i++) {
+                let time = Cesium.JulianDate.addSeconds(start, source[i].time, new Cesium.JulianDate);
+                let position = Cesium.Cartesian3.fromDegrees(source[i].longitude, source[i].dimension, source[i].height);
+                // 添加位置，和时间对应
+                property.addSample(time, position);
+            }
+            return property;
+        }
+
+        let property = computeFlight(data)   // 这是通过一个方法把时间轴和船的位置信息绑定了
+        entity = viewer.entities.add({
+            availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
+                start: start,
+                stop: stop
+            })]),
+            position: property,
+            orientation: new Cesium.VelocityOrientationProperty(property),  // 根据速度计算方向角
+            // orientation: Cesium.Transforms.headingPitchRollQuaternion(
+            //     new Cesium.Cartesian3(-3082074.0839866344, 5780427.607466951, 3038518.084876725),
+            //     new Cesium.HeadingPitchRoll(
+            //         Cesium.Math.toRadians(-142),    // 设置这个属性即可（顺时针旋转的角度值）
+            //         Cesium.Math.toRadians(0),
+            //         Cesium.Math.toRadians(0)
+            //     )
+            // ),
+            model: {
+                uri: './战舰模型/qzj改方向gltf.gltf', //gltf文件的URL
+                scale: 5.0,     //放大倍数
+                color: Cesium.Color.fromCssColorString('rgba(0, 253, 239, 0.6)'),  // 船模型颜色
+                silhouetteColor: Cesium.Color.fromCssColorString('rgba(0, 255, 0, 1)'),   // 船模型边框颜色
+                silhouetteSize: 1      // 船模型边框宽度
+            },
+            path: {    // 船路径
+                resolution: 1,  //  这个不知道是啥
+                material: new Cesium.PolylineGlowMaterialProperty({
+                    glowPower: 0.1,    // 颜色透明度
+                    color: Cesium.Color.fromCssColorString('rgba(0, 253, 239, 0.5)')   // 路线颜色
+                }),
+                width: 2  // 路线的显示宽度
+            }
+        });
+        viewer.trackedEntity = entity;   // 视角跟随模型
+
+        // 在创建完模型之后创建一个粒子系统
+        let particleSystem = viewer.scene.primitives.add(new Cesium.ParticleSystem({
+            image: './SampleData/smoke.png',   // 波浪图片
+            //startColor  endColor，代替color使得粒子的颜色在粒子的生命过程中会在这两种颜色之间平滑地混合。
+            startColor: Cesium.Color.fromCssColorString('rgba(75, 125, 172, 0.6)'),
+            endColor: Cesium.Color.WHITE.withAlpha(0.0),
+            //startScale   endScale代替scale设置粒子在生命周期内显示的初始和结束尺寸，也是动态混合的作用。
+            // 值越大，初始时粒子图的大小越大
+            //初始缩放比例
+            startScale: 20.0,
+            //最终缩放比例
+            endScale: 40.0,
+            //设定粒子寿命可能持续时间的最小/大限值(以秒为单位)，在此限值之上将随机选择粒子的实际寿命。
+            minimumParticleLife: 1,
+            maximumParticleLife: 6,
+            //粒子寿命
+            particleLife: 5.0,
+            //lifetime：粒子系统会发射多久粒子，以秒为单位。默认为最大值
+            lifetime: 16.0,
+            //设置粒子图发射之后的最小/最大边界(以米/秒为单位)
+            //值越大，尾巴飘的越高
+            minimumSpeed: 1,
+            maximumSpeed: 4,
+            //每秒发射的粒子数， 数值越大，越浓密
+            emissionRate: 500.0,
+            // 设置粒子发射器
+            //还有锥形发射器，new Cesium.ConeEmitter(Cesium.Math.toRadians(45.0))
+            //长方形发射器，new Cesium.BoxEmitter(new Cesium.Cartesian3(1.0, 1.0, 1.0))
+            //半球发射器，new Cesium.SphereEmitter(0.5)
+            //圆形发射器，new Cesium.CircleEmitter(5.0)
+            emitter: new Cesium.BoxEmitter(new Cesium.Cartesian3(1.0, 1.0, 1.0)),
+            minimumImageSize: new Cesium.Cartesian2(0, 0),
+            maximumImageSize: new Cesium.Cartesian2(2, 2),
+            //主模型参数(位置)
+            //粒子系统在整个地理空间中的坐标与方向（模型，创建一个表示当前系统时间（朱利安时间）的新实例。）
+            modelMatrix: computeModelMatrix(entity, Cesium.JulianDate.now()),
+            // 粒子发射器相对于粒子系统自身坐标系原点的坐标与方向
+            emitterModelMatrix: computeEmitterModelMatrix(),
+            updateCallback: applyGravity,
+        }));
+
+        viewer.scene.preRender.addEventListener((scene, time) => {
+            particleSystem.modelMatrix = computeModelMatrix(entity, time);  // 粒子系统和模型绑定，让他跟着模型跑
+        });
+        // 手动更新器  回调函数传过两个参数，一个是粒子本身，另一个是仿真时间步长
+        // 参数p-Particle是需要被更新的粒子，dt-自上次更新之后的秒数
+        function applyGravity(p, dt) {
+            // 计算每个粒子的向上向量（相对地心） 
+            const position = p.position;
+            const gravityScratch = new Cesium.Cartesian3();
+            Cesium.Cartesian3.normalize(position, gravityScratch);
+            Cesium.Cartesian3.multiplyByScalar(
+                gravityScratch,
+                0 * dt,
+                gravityScratch
+            );
+            p.velocity = Cesium.Cartesian3.add(
+                p.velocity,
+                gravityScratch,
+                p.velocity
+            );
+        }
+        //由粒子发射器相对于粒子系统坐标系原点的平移、旋转确定粒子发射器世界坐标和方向
+        function computeEmitterModelMatrix() {
+            //方向
+            //HeadingPitchRoll(z,y,x)一个旋转
+            //Cesium.HeadingPitchRoll.fromDegrees(z, y, x, 结果格式)将给定的角度转换为旋转实例
+            let hpr = Cesium.HeadingPitchRoll.fromDegrees(80, 80, 80, new Cesium.HeadingPitchRoll());
+            // new Cesium.TranslationRotationScale(translation, 旋转, 三方向缩放)生成新的仿射变换
+            var trs = new Cesium.TranslationRotationScale();
+            //以modelMatrix(船舰)中心为原点的坐标系的xyz轴位置偏移
+            //Cesium.Cartesian3.fromElements(x, y, z, result)；三维坐标转三维向量 (可以理解为沿着XYZ三轴的坐标平移)
+            trs.translation = Cesium.Cartesian3.fromElements(-30, 0, 0, new Cesium.Cartesian3());
+            //Cesium.Quaternion.fromHeadingPitchRoll(headingPitchRoll, result) 将旋转转化为四元数
+            trs.rotation = Cesium.Quaternion.fromHeadingPitchRoll(hpr, new Cesium.Quaternion());
+            //将仿生变换转换为四阶矩阵
+            return Cesium.Matrix4.fromTranslationRotationScale(trs, new Cesium.Matrix4());
+        }
+
+        // 由模型的位置和方向实时计算粒子系统的位置和方向
+        function computeModelMatrix(entity, time) {
+            //获取位置
+            let position = Cesium.Property.getValueOrUndefined(entity.position, time, new Cesium.Cartesian3());
+            if (!Cesium.defined(position)) {
+                return undefined;
+            }
+            //获取方向
+            let modelMatrix;
+            let orientation = Cesium.Property.getValueOrUndefined(entity.orientation, time, new Cesium.Quaternion());
+            if (!Cesium.defined(orientation)) {
+                modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(position, undefined, new Cesium.Matrix4());
+            } else {
+                modelMatrix = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromQuaternion(orientation, new Cesium.Matrix3()), position, new Cesium.Matrix4());
+            }
+            return modelMatrix;
+        }
+
+    </script>
+</body>
+
+</html>

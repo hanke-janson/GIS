@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <!-- 0 引入js文件：XbsjEarth.js和vue.min.js -->
+    <script src="./js/EarthSDK/XbsjCesium/Cesium.js"></script>
+    <link rel="stylesheet" href="./js/EarthSDK/XbsjCesium/Widgets/widgets.css">
+    <script src="./js/EarthSDK/XbsjEarth/XbsjEarth.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.13/vue.js"></script>
+    <style>
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="vueApp" style="width: 100%; height: 100%; background: grey; position: relative;">
+        <earth-comp></earth-comp>
+    </div>
+    <script>
+        // 1 创建Earth的vue组件
+        var EarthComp = {
+            template: `
+                    <div style="width: 100%; height: 100%">
+                        <div ref="earthContainer" style="width: 100%; height: 100%"></div>
+                    </div>
+                `,
+            data() {
+                return {
+                    _earth: undefined, // 注意：Earth和Cesium的相关变量放在vue中，必须使用下划线作为前缀！
+                    enabled: true,
+                    aroundTime: 0
+                };
+            },
+            // 1.1 资源创建
+            mounted() {
+                // 1.1.1 创建地球
+                var earth = new XE.Earth(this.$refs.earthContainer);
+
+                this._earth = earth;
+
+                // 1.1.2 场景配置
+                earth.sceneTree.root = {
+                    "children": [
+                        {
+                            "czmObject": {
+                                "name": "本地地图",
+                                "xbsjType": "Imagery",
+                                "xbsjImageryProvider": {
+                                    "XbsjImageryProvider": {
+                                        "url": "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                                        "maximumLevel": 15,
+                                    },
+                                }
+                            }
+                        }
+                    ]
+                }
+
+                // 1.1.3 数据绑定
+                this._enabledUnbind = XE.MVVM.bind(this, 'enabled', earth.weather.cloud, 'enabled');
+                this._aroundTimetUnbind = XE.MVVM.bind(this, 'aroundTime', earth.weather.cloud, 'aroundTime');
+
+                // 1.1.4 设置初始值
+                earth.weather.cloud.enabled = true;
+
+                // only for Debug
+                window.earth = earth;
+            },
+            methods: {
+            },
+            // 1.2 资源销毁
+            beforeDestroy() {
+                // vue程序销毁时，需要清理相关资源
+                this._enabledUnbind = this._enabledUnbind && this._enabledUnbind();
+                this._aroundTimetUnbind = this._aroundTimetUnbind && this._aroundTimetUnbind();
+                this._earth = this._earth && this._earth.destroy();
+            },
+        }
+
+        // 2 创建vue程序
+        // XE.ready()用来加载Cesium.js等相关资源
+        XE.ready().then(() => {
+            var app = new Vue({
+                el: '#vueApp',
+                components: {
+                    EarthComp,
+                },
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Demo-tileset</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <!-- 纠偏插件 但好像只支持在线地图
+    <script src="https://cdn.jsdelivr.net/npm/@dvgis/cesium-map"></script> -->
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        // // cesium 秘钥
+        // Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc';
+
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: false, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            maximumRenderTimeChange: Infinity,
+            // 加载本地离线地图
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                // url: "http://192.168.1.84:8888/bm/map/{z}/{x}/{y}",
+                // url: "http://localhost:5000/map-12/{x}/{y}/{z}",
+                // 本地
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                // 谷歌
+                // url: "http://khms0.google.com/kh/v=908?&x={x}&y={y}&z={z}",
+                // 高德
+                // url: "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+                maximumLevel: 14,
+            }),
+            // // 加载地形数据
+            // terrainProvider: Cesium.createWorldTerrain({
+            //     requestWaterMask: true,
+            //     requestVertexNormals: true
+            // }),
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        // viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
+        // 设置相机视角位置
+        viewer.camera.setView({
+            destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
+            orientation: {
+                heading: 0.35631019520437945, // east, default value is 0.0 (north)
+                pitch: -1.5629984805761383,    // default value (looking down)
+                roll: 0.0                             // default value
+            }
+        });
+        // 加载城市建筑tileset数据
+        // 可加载多个已部署发布的3dtileset数据
+        // Cesium.IonResource.fromAssetId(75343) 此为官方纽约部分的城市数据
+        // 加载tileset数据及其优化选项
+        var changsha = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
+            url: "./js/changsha/tileset.json",
+            // url: "http://192.168.11.4:9000/3dtiles/gansu/tileset.json",
+            skipLevelOfDetail: true,
+            baseScreenSpaceError: 1024,
+            maximumScreenSpaceError: 256, // 数值加大，能让最终成像变模糊
+            skipScreenSpaceErrorFactor: 16,
+            skipLevels: 1,
+            immediatelyLoadDesiredLevelOfDetail: false,
+            loadSiblings: true, // 如果为true则不会在已加载完概况房屋后，自动从中心开始超清化房屋
+            cullWithChildrenBounds: true,
+            cullRequestsWhileMoving: true,
+            cullRequestsWhileMovingMultiplier: 10, // 值越小能够更快的剔除
+            preloadWhenHidden: true,
+            preferLeaves: true,
+            maximumMemoryUsage: 128, // 内存分配变小有利于倾斜摄影数据回收，提升性能体验
+            progressiveResolutionHeightFraction: 0.5, // 数值偏于0能够让初始加载变得模糊
+            dynamicScreenSpaceErrorDensity: 0.1, // 数值加大，能让周边加载变快
+            dynamicScreenSpaceErrorFactor: 1,
+            dynamicScreenSpaceError: true // 有了这个后，会在真正的全屏加载完之后才清晰化房屋
+        }));
+
+        // 调整建筑样式  让建筑变透明
+        // var transparentStyle = new Cesium.Cesium3DTileStyle({
+        //     color: "color('white', 1)",
+        //     show: true
+        // });
+        // changsha.style = transparentStyle;
+
+        // 根据建筑高度改变建筑颜色样式
+        // https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling
+        // var heightStyle = new Cesium.Cesium3DTileStyle({
+        //     color: {
+        //         conditions: [
+        //             // Elevation 为该建筑资源的高度属性，若引入的3D Tiles数据中无此属性会报错，该属性名根据数据中的属性名进行更改
+        //             ["${Floor} >= 300", "rgba(45, 0, 75, 0.5)"],
+        //             ["${Floor} >= 200", "rgb(102, 71, 151)"],
+        //             ["${Floor} >= 100", "rgb(170, 162, 204)"],
+        //             ["${Floor} >= 50", "rgb(224, 226, 238)"],
+        //             ["${Floor} >= 25", "rgb(252, 230, 200)"],
+        //             ["${Floor} >= 10", "rgb(248, 176, 87)"],
+        //             ["${Floor} >= 5", "rgb(198, 106, 11)"],
+        //             ["true", "rgb(127, 59, 8)"]
+        //         ]
+        //     }
+        // });
+        // changsha.style = heightStyle;
+
+        // /**
+        //  * @description: 日照阴影效果模拟
+        //  * @param {*} _viewer
+        //  * @param {*} _speed：变化速率
+        //  * @return {*}
+        //  */
+        // function lightingShadowInit(_viewer, _speed) {
+        //     _viewer.scene.globe.enableLighting = true;
+        //     _viewer.shadows = true;
+        //     _viewer.clock.multiplier = _speed;
+        // }
+        // // 调用
+        // lightingShadowInit(viewer, 1000);
+    </script>
+</body>
+
+</html>

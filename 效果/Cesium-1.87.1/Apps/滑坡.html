@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Demo-gltf</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        // cesium 秘钥
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc';
+
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: true, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            // maximumRenderTimeChange: Infinity,
+            // 加载本地离线地图
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                // 本地
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                maximumLevel: 14,
+            }),
+            // // 加载地形数据
+            // terrainProvider: Cesium.createWorldTerrain({
+            //     requestWaterMask: true,
+            //     requestVertexNormals: true
+            // }),
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
+        
+        const position = Cesium.Cartesian3.fromDegrees(114.30, 30.50, 200);
+        const orientation = new Cesium.Transforms.headingPitchRollQuaternion(position,
+            new Cesium.HeadingPitchRoll.fromDegrees(0, 0, 0))
+        const entity = viewer.entities.add({
+            position: position,
+            orientation: orientation,
+            model: {
+                uri: './landslide.gltf',
+                minimumPixelSize: 200, //模型最小尺寸
+                maximunScale: 5000,//模型最大尺寸
+                show: true
+            }
+        })
+        viewer.zoomTo(entity)
+    </script>
+</body>
+
+</html>

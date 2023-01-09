@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc'
+        let viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: true, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            // maximumRenderTimeChange: Infinity,
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                maximumLevel: 14,
+            })
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        // const position = Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 0.0)
+
+        // 设置相机位置
+        // f12输入代码为：
+        // viewer.camera.position
+        // viewer.camera.heading
+        // viewer.camera.pitch
+        // viewer.camera.roll
+        viewer.camera.setView({
+            // 设置相机位置
+            destination: { x: -100.43673802400008, y: 1159.703305862844, z: 939.2425613496453 },
+            orientation: {
+                // 初始视角
+                heading: 3.0551893878320415,
+                pitch: -0.67910462316329,
+                roll: 1.3372353979690388e-7
+            }
+        });
+
+    </script>
+    <script type="module">
+        import { explotEffect } from './Explosion/explotEffect.js';
+        import { smokeEffect } from './Explosion/smokeEffect.js';
+        import { fireEffect } from './Explosion/fireEffect.js';
+        let explosionPosition = Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 0.0);
+        let explot = new explotEffect(viewer, explosionPosition, 100, 0.5, 50, false);
+
+        let fire = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 0.0), 25.0, 16.0, 25)
+        // let fire2 = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34576552299206, 39.99754814959118, 0.0), 25.0, 16.0, true)
+        // let fire3 = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34566552299206, 39.99754814959118, 0.0), 25.0, 16.0, true)
+
+        let smoke = new smokeEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 2.0), 15, 16, 35, true);
+
+
+        // var hpr = new Cesium.HeadingPitchRoll();
+        // const entity = viewer.entities.add({
+        //     position: Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118),
+        //     orientation: new Cesium.Transforms.headingPitchRollQuaternion(
+        //         Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118),
+        //         new Cesium.HeadingPitchRoll.fromDegrees(0, 0, 0)
+        //     ),
+        // })
+
+        // 火焰
+        // function addFire() {
+        //     var particleSystem = viewer.scene.primitives.add(new Cesium.ParticleSystem({
+        //         image: 'Explosion/fire.png',
+        //         //粒子在生命周期开始时的颜色
+        //         startColor: Cesium.Color.RED.withAlpha(0.9),
+        //         //粒子在生命周期结束时的颜色
+        //         endColor: new Cesium.Color(0.8, 0.6, 0, 0.1),
+        //         startScale: 1.0,
+        //         endScale: 3.0,
+        //         particleLife: 3.0,// 粒子存在时间，调高火越烧越高
+        //         speed: 5.0,
+        //         imageSize: new Cesium.Cartesian2(25, 20),
+        //         emissionRate: 5.0,
+        //         lifetime: 16.0,
+        //         modelMatrix: computeModelMatrix(entity, Cesium.JulianDate.now()),
+        //         emitter: new Cesium.ConeEmitter(Cesium.Math.toRadians(45.0)),
+        //         emitterModelMatrix: computeEmitterModelMatrix()
+        //     }));
+        //     // 由传入的位置和方向实时计算粒子系统的位置和方向。
+        //     function computeModelMatrix(entity, time) {
+        //         // 实体位置
+        //         var position = Cesium.Property.getValueOrUndefined(entity.position, time, new Cesium.Cartesian3());
+        //         if (!Cesium.defined(position)) {
+        //             return undefined;
+        //         }
+        //         // console.log(entity.position)
+        //         // 实体朝向
+        //         var orientation = Cesium.Property.getValueOrUndefined(entity.orientation, time, new Cesium.Quaternion());
+        //         // console.log(entity.orientation)
+        //         if (!Cesium.defined(orientation)) {
+        //             var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(position, undefined, new Cesium.Matrix4());
+        //         } else {
+        //             modelMatrix = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromQuaternion(orientation, new Cesium.Matrix3()), position, new Cesium.Matrix4());
+        //         }
+        //         return modelMatrix;
+        //     }
+        //     // 由粒子发射器相对于粒子系统坐标系原点的平移、旋转确定粒子发射器世界坐标和方向。
+        //     function computeEmitterModelMatrix() {
+        //         hpr = Cesium.HeadingPitchRoll.fromDegrees(0.0, 0.0, 0.0, new Cesium.HeadingPitchRoll());
+        //         var trs = new Cesium.TranslationRotationScale();
+        //         trs.translation = Cesium.Cartesian3.fromElements(2.5, 4.0, 1.0, new Cesium.Cartesian3());
+        //         trs.rotation = Cesium.Quaternion.fromHeadingPitchRoll(hpr, new Cesium.Quaternion());
+        //         return Cesium.Matrix4.fromTranslationRotationScale(trs, new Cesium.Matrix4());
+        //     }
+        // }
+
+        // addFire();
+    </script>
+</body>
+
+</html>

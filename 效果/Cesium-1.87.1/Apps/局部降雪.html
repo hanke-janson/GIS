@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: false, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            // maximumRenderTimeChange: Infinity,
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                maximumLevel: 14,
+            })
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+
+        //雪效果 局部降雪
+        var scene = viewer.scene;
+        scene.globe.depthTestAgainstTerrain = true;
+        scene.camera.setView({
+            destination: new Cesium.Cartesian3(277096.634865404, 5647834.481964232, 2985563.7039122293),
+            orientation: {
+                heading: 4.731089976107251,
+                pitch: -0.32003481981370063
+            }
+        });
+        // snow
+        var snowParticleSize = scene.drawingBufferWidth / 100.0;//粒子系统大小
+        var snowRadius = 100000.0;//雪的半径
+        var minimumSnowImageSize = new Cesium.Cartesian2(snowParticleSize, snowParticleSize);//最小 雪大小
+        var maximumSnowImageSize = new Cesium.Cartesian2(snowParticleSize * 2.0, snowParticleSize * 2.0);//最大 雪大小
+        var snowSystem;
+
+        var snowGravityScratch = new Cesium.Cartesian3();//竖直位置--名词存疑-实际上是一个坐标
+        //每个粒子系统在仿真过程中，都会调用更新回调函数来修改粒子的属性。
+        // 回调函数传过两个参数，一个是粒子本身，另一个是仿真时间步长
+        var snowUpdate = function (particle, dt) {
+            //计算提供的笛卡尔坐标的标准化形式
+            snowGravityScratch = Cesium.Cartesian3.normalize(particle.position, snowGravityScratch);
+            //所提供的标量对所提供的笛卡尔分量进行多重变换。最后写入到snowGravityScratch中，随机下落的距离
+            Cesium.Cartesian3.multiplyByScalar(snowGravityScratch, Cesium.Math.randomBetween(-30.0, -300.0), snowGravityScratch);
+            //粒子速度，两个笛卡尔坐标相加--赋值到第三个分量中，等价于速度自增velocity+=velocity
+            particle.velocity = Cesium.Cartesian3.add(particle.velocity, snowGravityScratch, particle.velocity);
+            //判断相机位置距离，
+            var distance = Cesium.Cartesian3.distance(scene.camera.position, particle.position);
+            //如果距离大于雪的半径，则透明度为0，否则逐渐增加
+            if (distance > snowRadius) {
+                particle.endColor.alpha = 0.0;
+            } else {
+                particle.endColor.alpha = snowSystem.endColor.alpha / (distance / snowRadius + 0.1);
+            }
+        };
+        snowSystem = new Cesium.ParticleSystem({
+            modelMatrix: new Cesium.Matrix4.fromTranslation(scene.camera.position),//粒子系统发射器的位置
+            minimumSpeed: -1.0,//最小速度
+            maximumSpeed: 0.0,//最大速度
+            lifetime: 15.0,//例子生命周期长度
+            emitter: new Cesium.SphereEmitter(snowRadius), //例子系统发射器，包裹圆形，椭圆，盒子，cone形状的发射器
+            startScale: 0.5,//起始比例
+            endScale: 1.0,//终止比例
+            image: './SampleData/circular_particle.png',
+            emissionRate: 7000.0,//每秒发射的粒子数量
+            startColor: Cesium.Color.WHITE.withAlpha(0.0),//起始颜色
+            endColor: Cesium.Color.WHITE.withAlpha(1.0),//终止颜色
+            minimumImageSize: minimumSnowImageSize,//最小大小
+            maximumImageSize: maximumSnowImageSize,//最大大小
+            updateCallback: snowUpdate
+        });
+        scene.primitives.add(snowSystem);
+    </script>
+</body>
+
+</html>

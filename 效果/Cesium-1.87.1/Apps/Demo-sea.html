@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Demo-water</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <!-- 坐标转换 -->
+    <script src="./js/proj4.js"></script>
+    <script src="./js/jquery-3.6.1.min.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        // cesium 秘钥
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc';
+
+        // 定义场景、标签位置数组、实体数组
+        let viewer, labelArr = [], entities = [];
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: true, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            // maximumRenderTimeChange: Infinity,
+            // 加载本地离线地图
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                // url: "http://192.168.1.84:8888/bm/map/{z}/{x}/{y}",
+                // url: "http://localhost:5000/map-12/{x}/{y}/{z}",
+                // 本地
+                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                // 谷歌
+                // url: "http://khms0.google.com/kh/v=908?&x={x}&y={y}&z={z}",
+                // 高德
+                // url: "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+                maximumLevel: 14,
+            }),
+        })
+        // 关闭鼠标操作惯性
+        var CesiumViewerSceneController = viewer.scene.screenSpaceCameraController;
+        CesiumViewerSceneController.inertiaSpin = 0;
+        CesiumViewerSceneController.inertiaTranslate = 0;
+        CesiumViewerSceneController.inertiaZoom = 0;
+        // 解决"RuntimeError", message: "Unknown crs name: urn:ogc:def:crs:EPSG::3857"
+        Cesium.GeoJsonDataSource.crsNames[
+            "urn:ogc:def:crs:EPSG::3857"
+        ] = Cesium.GeoJsonDataSource.crsNames["EPSG:3857"] = function (
+            coordinates
+        ) {
+            const firstProjection =
+                'PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"],AUTHORITY["EPSG","3857"]]';
+            const secondProjection =
+                'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
+
+            const xa = coordinates[0];
+            const ya = coordinates[1];
+
+            const newCoordinates = proj4(
+                firstProjection,
+                secondProjection,
+                [xa, ya]
+            );
+            return Cesium.Cartesian3.fromDegrees(
+                newCoordinates[0],
+                newCoordinates[1],
+                0
+            );
+        };
+
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        // 设置相机视角位置
+        viewer.camera.setView({
+            destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
+            orientation: {
+                heading: 0.35631019520437945, // east, default value is 0.0 (north)
+                pitch: -1.5629984805761383,    // default value (looking down)
+                roll: 0.0                             // default value
+            }
+        });
+        // 水系
+        // AddWaterLayer("http://192.168.11.4:9000/geojson/cswater.geojson");
+        AddWaterLayer("./WB_Coastlines_10m.geojson")
+        function AddWaterLayer(data) {
+            let promise = Cesium.GeoJsonDataSource.load(data, {
+                stroke: Cesium.Color.WHITE,
+                // fill: new Cesium.Color(0, 0, 0, 0),
+                // fill: Cesium.Color.BLUE.withAlpha(0.3), //注意：颜色必须大写，即不能为blue
+                strokeWidth: 5,
+                clampToGround: true,
+            });
+            //数据加载后渲染
+            promise.then((ds) => {
+                let instances = [];
+                let entitys = ds.entities.values;
+                entitys.forEach((e) => {
+                    let geometry = new Cesium.GeometryInstance({
+                        geometry: new Cesium.PolygonGeometry({
+                            polygonHierarchy: new Cesium.PolygonHierarchy(
+                                e.polygon.hierarchy.getValue().positions
+                            ),
+                            extrudedHeight: 0,
+                            height: 0,
+                            vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT,
+                        }),
+                        attributes: {
+                            color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                                Cesium.Color.fromRandom({
+                                    alpha: 0.5,
+                                })
+                            ),
+                        },
+                    });
+                    instances.push(geometry);
+                });
+                // 自定义材质 https://www.shadertoy.com/view/Ms2SD1 还不知道怎么改的
+                let aper = new Cesium.MaterialAppearance({
+                    material: new Cesium.Material({
+                        fabric: {
+                            uniforms: {
+                                iTime: 0,
+                            },
+                            source: `
+        const int NUM_STEPS = 8;
+      const float PI     = 3.141592;
+      const float EPSILON  = 1e-3;
+      //#define EPSILON_NRM (0.1 / iResolution.x)
+      #define EPSILON_NRM (0.1 / 200.0)
+      // sea
+      const int ITER_GEOMETRY = 3;
+      const int ITER_FRAGMENT = 5;
+      const float SEA_HEIGHT = 0.6;
+      const float SEA_CHOPPY = 4.0;
+      const float SEA_SPEED = 1.8;
+      const float SEA_FREQ = 0.16;
+      const vec3 SEA_BASE = vec3(0.1,0.19,0.22);
+      const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
+      //#define SEA_TIME (1.0 + iTime * SEA_SPEED)
+      const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+      // math
+      mat3 fromEuler(vec3 ang) {
+        vec2 a1 = vec2(sin(ang.x),cos(ang.x));
+        vec2 a2 = vec2(sin(ang.y),cos(ang.y));
+        vec2 a3 = vec2(sin(ang.z),cos(ang.z));
+        mat3 m;
+        m[0] = vec3(a1.y*a3.y+a1.x*a2.x*a3.x,a1.y*a2.x*a3.x+a3.y*a1.x,-a2.y*a3.x);
+        m[1] = vec3(-a2.y*a1.x,a1.y*a2.y,a2.x);
+        m[2] = vec3(a3.y*a1.x*a2.x+a1.y*a3.x,a1.x*a3.x-a1.y*a3.y*a2.x,a2.y*a3.y);
+        return m;
+      }
+      float hash( vec2 p ) {
+        float h = dot(p,vec2(127.1,311.7));
+        return fract(sin(h)*43758.5453123);
+      }
+      float noise( in vec2 p ) {
+        vec2 i = floor( p );
+        vec2 f = fract( p );
+        vec2 u = f*f*(3.0-2.0*f);
+        return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ),
+                 hash( i + vec2(1.0,0.0) ), u.x),
+              mix( hash( i + vec2(0.0,1.0) ),
+                 hash( i + vec2(1.0,1.0) ), u.x), u.y);
+      }
+      // lighting
+      float diffuse(vec3 n,vec3 l,float p) {
+        return pow(dot(n,l) * 0.4 + 0.6,p);
+      }
+      float specular(vec3 n,vec3 l,vec3 e,float s) {
+        float nrm = (s + 8.0) / (PI * 8.0);
+        return pow(max(dot(reflect(e,n),l),0.0),s) * nrm;
+      }
+      // sky
+      vec3 getSkyColor(vec3 e) {
+        e.y = max(e.y,0.0);
+        return vec3(pow(1.0-e.y,2.0), 1.0-e.y, 0.6+(1.0-e.y)*0.4);
+      }
+      // sea
+      float sea_octave(vec2 uv, float choppy) {
+        uv += noise(uv);
+        vec2 wv = 1.0-abs(sin(uv));
+        vec2 swv = abs(cos(uv));
+        wv = mix(wv,swv,wv);
+        return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+      }
+      float map(vec3 p) {
+        float freq = SEA_FREQ;
+        float amp = SEA_HEIGHT;
+        float choppy = SEA_CHOPPY;
+        vec2 uv = p.xz; uv.x *= 0.75;
+        float d, h = 0.0;
+        float SEA_TIME = 1.0 + iTime * SEA_SPEED;
+        for(int i = 0; i < ITER_GEOMETRY; i++) {
+          d = sea_octave((uv+SEA_TIME)*freq,choppy);
+          d += sea_octave((uv-SEA_TIME)*freq,choppy);
+          h += d * amp;
+          uv *= octave_m; freq *= 1.9; amp *= 0.22;
+          choppy = mix(choppy,1.0,0.2);
+        }
+        return p.y - h;
+      }
+      float map_detailed(vec3 p) {
+        float freq = SEA_FREQ;
+        float amp = SEA_HEIGHT;
+        float choppy = SEA_CHOPPY;
+        vec2 uv = p.xz; uv.x *= 0.75;
+        float SEA_TIME = 1.0 + iTime * SEA_SPEED;
+        float d, h = 0.0;
+        for(int i = 0; i < ITER_FRAGMENT; i++) {
+          d = sea_octave((uv+SEA_TIME)*freq,choppy);
+          d += sea_octave((uv-SEA_TIME)*freq,choppy);
+          h += d * amp;
+          uv *= octave_m; freq *= 1.9; amp *= 0.22;
+          choppy = mix(choppy,1.0,0.2);
+        }
+        return p.y - h;
+      }
+      vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
+        float fresnel = clamp(1.0 - dot(n,-eye), 0.0, 1.0);
+        fresnel = pow(fresnel,3.0) * 0.65;
+        vec3 reflected = getSkyColor(reflect(eye,n));
+        vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12;
+        vec3 color = mix(refracted,reflected,fresnel);
+        float atten = max(1.0 - dot(dist,dist) * 0.001, 0.0);
+        color += SEA_WATER_COLOR * (p.y - SEA_HEIGHT) * 0.18 * atten;
+        color += vec3(specular(n,l,eye,60.0));
+        return color;
+      }
+      // tracing
+      vec3 getNormal(vec3 p, float eps) {
+        vec3 n;
+        n.y = map_detailed(p);
+        n.x = map_detailed(vec3(p.x+eps,p.y,p.z)) - n.y;
+        n.z = map_detailed(vec3(p.x,p.y,p.z+eps)) - n.y;
+        n.y = eps;
+        return normalize(n);
+      }
+      float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
+        float tm = 0.0;
+        float tx = 1000.0;
+        float hx = map(ori + dir * tx);
+        if(hx > 0.0) return tx;
+        float hm = map(ori + dir * tm);
+        float tmid = 0.0;
+        for(int i = 0; i < NUM_STEPS; i++) {
+          tmid = mix(tm,tx, hm/(hm-hx));
+          p = ori + dir * tmid;
+          float hmid = map(p);
+          if(hmid < 0.0) {
+            tx = tmid;
+            hx = hmid;
+          } else {
+            tm = tmid;
+            hm = hmid;
+          }
+        }
+        return tmid;
+      }
+           vec4 czm_getMaterial(vec2 vUv)
+           {
+            vec2 uv = vUv;
+            uv = vUv * 2.0 - 1.0;
+            float time = iTime * 0.3 + 0.0*0.01;
+            // ray
+            vec3 ang = vec3(0, 1.2, 0.0);
+              vec3 ori = vec3(0.0,3.5,0);
+            vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
+            dir = normalize(dir) * fromEuler(ang);
+            // tracing
+            vec3 p;
+            heightMapTracing(ori,dir,p);
+            vec3 dist = p - ori;
+            vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
+            vec3 light = normalize(vec3(0.0,1.0,0.8));
+            // color
+            vec3 color = mix(
+              getSkyColor(dir),
+              getSeaColor(p,n,light,dir,dist),
+              pow(smoothstep(0.0,-0.05,dir.y),0.3));
+               return vec4( pow(color,vec3(0.75)), 1.0 );
+           }
+        `,
+                        }
+                    }),
+                    translucent: true,
+                    vertexShaderSource: `
+        attribute vec3 position3DHigh;
+        attribute vec3 position3DLow;
+        attribute float batchId;
+        attribute vec2 st;
+        attribute vec3 normal;
+        varying vec2 v_st;
+        varying vec3 v_positionEC;
+        varying vec3 v_normalEC;
+        void main() {
+            v_st = st;
+            vec4 p = czm_computePosition();
+            v_positionEC = (czm_modelViewRelativeToEye * p).xyz;      // position in eye coordinates
+            v_normalEC = czm_normal * normal;                         // normal in eye coordinates
+            gl_Position = czm_modelViewProjectionRelativeToEye * p;
+        }
+                    `,
+                    fragmentShaderSource: `
+      varying vec2 v_st;
+      varying vec3 v_positionEC;
+      varying vec3 v_normalEC;
+      void main()  {
+        vec3 positionToEyeEC = -v_positionEC;
+        vec3 normalEC = normalize(v_normalEC);
+        czm_materialInput materialInput;
+        materialInput.normalEC = normalEC;
+        materialInput.positionToEyeEC = positionToEyeEC;
+        materialInput.st = v_st;
+        vec4 color = czm_getMaterial(v_st);
+        gl_FragColor = color;
+      }
+                `,
+                });
+                viewer.scene.primitives.add(new Cesium.Primitive({
+                    geometryInstances: instances,
+                    appearance: aper,
+                }));
+                function renderLoop(timestamp) {
+                    aper.material.uniforms.iTime = timestamp / 1000;
+                    requestAnimationFrame(renderLoop);
+                }
+                renderLoop();
+            });
+            viewer.dataSources.add(promise);
+        };
+
+    </script>
+</body>
+
+</html>
