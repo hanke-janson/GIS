@@ -1,6 +1,0 @@
-{
-    "typedocOptions": {
-        "entryPoints": ["index.d.ts"],
-        "out": "../doc/api"
-    }
-}
