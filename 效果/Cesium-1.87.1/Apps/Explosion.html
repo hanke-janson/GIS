@@ -63,16 +63,6 @@
         // viewer.camera.heading
         // viewer.camera.pitch
         // viewer.camera.roll
-        viewer.camera.setView({
-            // 设置相机位置
-            destination: { x: -100.43673802400008, y: 1159.703305862844, z: 939.2425613496453 },
-            orientation: {
-                // 初始视角
-                heading: 3.0551893878320415,
-                pitch: -0.67910462316329,
-                roll: 1.3372353979690388e-7
-            }
-        });
 
     </script>
     <script type="module">
@@ -80,13 +70,38 @@
         import { smokeEffect } from './Explosion/smokeEffect.js';
         import { fireEffect } from './Explosion/fireEffect.js';
         let explosionPosition = Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 0.0);
-        let explot = new explotEffect(viewer, explosionPosition, 100, 0.5, 50, false);
+        let explot = new explotEffect(viewer, explosionPosition, 100, 0.5, 50, true);
 
         let fire = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 0.0), 25.0, 16.0, 25)
         // let fire2 = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34576552299206, 39.99754814959118, 0.0), 25.0, 16.0, true)
         // let fire3 = new fireEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34566552299206, 39.99754814959118, 0.0), 25.0, 16.0, true)
 
         let smoke = new smokeEffect(viewer, Cesium.Cartesian3.fromDegrees(116.34586552299206, 39.99754814959118, 2.0), 15, 16, 35, true);
+        let flyLoc = Cesium.Cartesian3.fromDegrees(116.3552717949346, 39.99161403905759, 500.0);
+        viewer.camera.flyTo({
+            destination: flyLoc,
+            orientation: {
+                destination: flyLoc,
+                heading: 5.398974432300292,
+                pitch: -0.3021375411489178,
+                roll: 0.0
+            },
+            //飞行持续时间
+            duration: 1
+        });
+
+
+        // 获取当前点位经纬度
+        var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        handler.setInputAction(function (evt) {
+            var cartesian = viewer.camera.pickEllipsoid(evt.position, viewer.scene.globe.ellipsoid);
+            var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            var lng = Cesium.Math.toDegrees(cartographic.longitude);//经度值
+            var lat = Cesium.Math.toDegrees(cartographic.latitude);//纬度值
+            var mapPosition = { x: lng, y: lat, z: cartographic.height };//cartographic.height的值始终为零。
+            console.log(mapPosition);
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 
 
         // var hpr = new Cesium.HeadingPitchRoll();

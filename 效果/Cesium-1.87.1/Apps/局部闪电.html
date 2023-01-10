@@ -9,8 +9,10 @@
     <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-    <title>Hello World!</title>
+    <title>局部闪电</title>
     <script src="../Build/Cesium/Cesium.js"></script>
+    <!-- 补间动画 -->
+    <!-- <script src="../node_modules/gsap/dist/gsap.js"></script> -->
     <style>
         @import url(../Build/Cesium/Widgets/widgets.css);
 
@@ -52,28 +54,145 @@
                 url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
                 maximumLevel: 14,
             }),
-            terrainProvider: new Cesium.CesiumTerrainProvider({
-                // "http://192.168.12.1:8089/sea_terrain"
-                // url: Cesium.IonResource.fromAssetId(1),
-                // url: "http://192.168.12.1:8089/sea_terrain",
-                requestWaterMask: true, // required for water effects
-                requestVertexNormals: true // required for terrain lighting
-            }),
+            // terrainProvider: new Cesium.CesiumTerrainProvider({
+            //     // url: Cesium.IonResource.fromAssetId(1),
+            //     // url: "http://192.168.12.1:8089/sea_terrain",
+            //     requestWaterMask: true, // required for water effects
+            //     requestVertexNormals: true // required for terrain lighting
+            // }),
         })
         // 去除logo
         viewer.cesiumWidget.creditContainer.style.display = "none";
+    </script>
+    <script>
+        var fragmentShaderSource = `float hash(float x)
+        {
+          return fract(21654.6512 * sin(385.51 * x));
+        }
+        float hash(vec2 p)
+        {
+          return fract(1654.65157 * sin(15.5134763 * p.x + 45.5173247 * p.y + 5.21789));
+        }
+        vec2 hash2(vec2 p)
+        {
+          return vec2(hash(p * .754), hash(1.5743 * p + 4.5476351));
+        }
+        vec2 add = vec2(1.0, 0.0);
+        vec2 noise2(vec2 x)
+        {
+        vec2 p = floor(x);
+        vec2 f = fract(x);
+          f = f * f * (3.0 - 2.0 * f);
+        vec2 res = mix(mix(hash2(p),
+        hash2(p + add.xy), f.x),
+        mix(hash2(p + add.yx), hash2(p + add.xx), f.x), f.y);
+          return res;
+        }
+        vec2 fbm2(vec2 x)
+        {
+        vec2 r = vec2(0.0);
+        float a = 1.0;
+          for (int i = 0; i < 8; i++)
+        {
+        r += noise2(x) * a;
+        x *= 2.;
+        a *= .5;
+        }
+          return r;
+        }
+        float dseg(vec2 ba, vec2 pa)
+        {
+        float h = clamp(dot(pa, ba) / dot(ba, ba), -0.2, 1.);
+          return length(pa - ba * h);
+        }
+        uniform sampler2D colorTexture; 
+        uniform float fall_interval; 
+        uniform float mix_factor; 
+        varying vec2 v_textureCoordinates; 
+        void main(void){
+        vec2 uv = gl_FragCoord.xy; 
+        float iTime = czm_frameNumber * fall_interval * clamp(fall_interval * 0.1, 0.01, 0.1); 
+        vec2 p = uv / czm_viewport.zw; 
+        vec2 d; 
+        vec2 tgt = vec2(1., -1.); 
+        float c = 0.; 
+          if (p.y >= 0.) 
+          c = (1. - (fbm2((p + .2) * p.y + .1 * iTime)).x) * p.y; 
+        else 
+          c = (1. - (fbm2(p + .2 + .1 * iTime)).x) * p.y * p.y; 
+        vec3 col = vec3(0.); 
+        
+        vec3 col1 = c * vec3(.3, .5, 1.); 
+        float mdist = 100000.; 
+        float t = hash(floor(5. * iTime)); 
+          tgt += 4. * hash2(tgt + t) - 1.5; 
+          if (hash(t + 2.3) > .6) 
+          for (int i = 0; i < 100; i++) {
+        vec2 dtgt = tgt - p; 
+        d = .05 * (vec2(-.5, -1.) + hash2(vec2(float(i), t))); 
+        
+        float dist = dseg(d, dtgt); 
+        
+        mdist = min(mdist, dist); 
+        tgt -= d; 
+        c = exp(-1.2 * dist) + exp(-55. * mdist); 
+        col = c * vec3(.7, .8, 1.); 
+          } 
+          col += col1; 
+          gl_FragColor = mix(texture2D(colorTexture, v_textureCoordinates), vec4(col, 0.0), mix_factor); 
+        } 
+        `;
 
-        // viewer.scene.camera.flyTo({
-        //     destination: new Cesium.Cartesian3(
-        //         -2797007.1332591604, 5213433.519014505, 2371828.282895937
-        //     ),
-        //     orientation: new Cesium.HeadingPitchRoll(
-        //         0.3643380229039286,
-        //         0.2846556443831838,
-        //         0.00018773369633517945
-        //     ),
-        // });
+        // primivite创建矩形
+        // 01-创建几何体
+        //几何体1
+        let rectGeometry = new Cesium.RectangleGeometry({
+            rectangle: Cesium.Rectangle.fromDegrees(
+                // 西边的经度
+                115,
+                // 南边维度
+                20,
+                // 东边经度
+                135,
+                // 北边维度
+                30
+            ),
+            // 距离表面高度
+            height: 0,
+            vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT,
+        });
+        // 02-创建几何体实例
+        let instance = new Cesium.GeometryInstance({
+            id: "redRect",
+            geometry: rectGeometry,
+            attributes: {
+                color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                    Cesium.Color.RED.withAlpha(0.0)
+                ),
+            },
+        });
 
+        //03-设置几何体外观
+        // 设定几何体都是与地球的椭球体平行
+        //假定几何体与地球椭球体平行，就可以在计算大量顶点属性的时候节省内存
+        let appearance = new Cesium.EllipsoidSurfaceAppearance({
+            fragmentShaderSource: fragmentShaderSource,
+        });
+        appearance.uniforms = {
+            mix_factor: 0.5,//混合系数0-1之间的数
+            fall_interval: 0.7,//0-1之间的数
+        };
+
+        // 04-图元
+        let primitive = new Cesium.Primitive({
+            geometryInstances: [instance],
+            appearance: appearance,
+            show: true,
+        });
+
+        console.log(primitive);
+        // 05-添加到viewer
+        viewer.scene.primitives.add(primitive);
     </script>
 </body>
 
