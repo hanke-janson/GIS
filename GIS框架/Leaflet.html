@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://lib.baomitu.com/leaflet/1.9.2/leaflet.js"></script>
+    <link rel="stylesheet" href="https://lib.baomitu.com/leaflet/1.9.2/leaflet.css">
+    <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.js"></script>
+    <title>Document</title>
+    <style>
+        #map {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #clean {
+            position: absolute;
+            z-index: 10000;
+            width: 200px;
+            height: 50px;
+            right: 10px;
+            top: 10px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <button id="clean">清除标注</button>
+    </div>
+    <script>
+        let url = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibGVvenpzIiwiYSI6ImNsY2lpOG5xMzN4aW0zc2w3Z3Nsa2RvZXMifQ.mo9uL9mAXYABEjA1Vn9SuQ"
+        let mapbox = L.tileLayer(url, {
+            maxZoom: 19,
+        })
+        //setView([维度，经度],放大级别)
+        let osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+        const map = L.map("map", {
+            center: [30, 114],
+            zoom: 13,
+            layers: [mapbox]
+        })
+        // layer.addTo(map)
+        // map.addLayer(layer)
+        // 集中管理图层
+        const layerGroup = new L.FeatureGroup().addTo(map)
+        map.on("click", function (evt) {
+            // let marker;
+            // console.log(evt.latlng)
+            var { lat, lng } = evt.latlng;
+            // map.setView([lat, lng]);
+            // 标注
+            var marker = new L.Marker([lat, lng]);
+            layerGroup.addLayer(marker);
+            // marker = L.marker([lat, lng])
+            //     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            //     .openPopup();
+            // marker.addTo(map);
+            // map.addLayer(marker);
+        })
+        $("#clean").click(function () {
+            layerGroup.clearLayers();
+        })
+        // map.on("mousemove",function(evt){
+        //     console.log(evt);
+        // })
+        // setTimeout(() => {
+        //     // 纬度 经度 级别   飞行视角
+        //     map.flyTo([0, 0], 4), 2000
+        // })
+    </script>
+</body>
+
+</html>
