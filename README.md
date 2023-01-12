@@ -18,7 +18,7 @@ GDAL shp转geojson 当前postgis也可以做
 
 用blender 建模  例如调整模型位置 贴图等等   Cesium去加载glTF格式的模型
 
-FME 用作空间数据转换处理
+FME 用作空间数据转换处理  https://zhuanlan.zhihu.com/p/484844257
 
 Cesiumlab 可以切片处理，3dtiles切片等
 
