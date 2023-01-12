@@ -4,11 +4,11 @@ Cesium效果
 
 GIS 前端拓扑处理 Turf.js
 
-    后端拓扑处理 jts
-    
-    后端 geotools
-    
-    前端框架 三维 Cesium Mapbox 二维 Leaflet openlayer
+后端拓扑处理 jts
+
+后端 geotools
+
+前端框架 三维 Cesium Mapbox 二维 Leaflet openlayer
 
 GDAL shp转geojson 当前postgis也可以做
 
