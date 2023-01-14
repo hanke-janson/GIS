@@ -19,3 +19,9 @@ GDAL shp 转 geojson 当前 postgis 也可以做
 用 blender 建模 例如调整模型位置 贴图等等 Cesium 去加载 glTF 格式的模型
 
 ENDI 处理遥感影像
+
+FME 用作空间数据转换处理 https://zhuanlan.zhihu.com/p/484844257
+
+Cesiumlab 可以切片处理，3dtiles 切片等
+
+geoserver 地图发布 用插件可以金字塔切片
