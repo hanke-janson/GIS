@@ -1,6 +1,6 @@
 # GIS
 
-Cesium效果
+Cesium 效果
 
 GIS 前端拓扑处理 Turf.js
 
@@ -10,10 +10,12 @@ GIS 前端拓扑处理 Turf.js
 
 前端框架 三维 Cesium Mapbox 二维 Leaflet openlayer
 
-GDAL shp转geojson 当前postgis也可以做
+GDAL shp 转 geojson 当前 postgis 也可以做
 
-空间数据库 postGIS  做GIS拓扑分析 存shp 栅格 坐标转换
+空间数据库 postGIS 做 GIS 拓扑分析 存 shp 栅格 坐标转换
 
 常用坐标系 3857 4326 4490
 
-用blender 建模  例如调整模型位置 贴图等等   Cesium去加载glTF格式的模型
+用 blender 建模 例如调整模型位置 贴图等等 Cesium 去加载 glTF 格式的模型
+
+ENDI 处理遥感影像
