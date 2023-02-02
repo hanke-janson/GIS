@@ -57,7 +57,7 @@
                 // url: "http://192.168.1.84:8888/bm/map/{z}/{x}/{y}",
                 // url: "http://localhost:5000/map-12/{x}/{y}/{z}",
                 // 本地
-                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
                 // 谷歌
                 // url: "http://khms0.google.com/kh/v=908?&x={x}&y={y}&z={z}",
                 // 高德
@@ -87,7 +87,7 @@
         // Cesium.IonResource.fromAssetId(75343) 此为官方纽约部分的城市数据
         // 加载tileset数据及其优化选项
         var changsha = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-            url: "./js/changsha/tileset.json",
+            url: "./New3dtiles/tileset.json",
             // url: "http://192.168.11.4:9000/3dtiles/gansu/tileset.json",
             skipLevelOfDetail: true,
             baseScreenSpaceError: 1024,
@@ -117,22 +117,18 @@
 
         // 根据建筑高度改变建筑颜色样式
         // https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling
-        // var heightStyle = new Cesium.Cesium3DTileStyle({
-        //     color: {
-        //         conditions: [
-        //             // Elevation 为该建筑资源的高度属性，若引入的3D Tiles数据中无此属性会报错，该属性名根据数据中的属性名进行更改
-        //             ["${Floor} >= 300", "rgba(45, 0, 75, 0.5)"],
-        //             ["${Floor} >= 200", "rgb(102, 71, 151)"],
-        //             ["${Floor} >= 100", "rgb(170, 162, 204)"],
-        //             ["${Floor} >= 50", "rgb(224, 226, 238)"],
-        //             ["${Floor} >= 25", "rgb(252, 230, 200)"],
-        //             ["${Floor} >= 10", "rgb(248, 176, 87)"],
-        //             ["${Floor} >= 5", "rgb(198, 106, 11)"],
-        //             ["true", "rgb(127, 59, 8)"]
-        //         ]
-        //     }
-        // });
-        // changsha.style = heightStyle;
+        var heightStyle = new Cesium.Cesium3DTileStyle({
+            color: {
+                conditions: [
+                    // Elevation 为该建筑资源的高度属性，若引入的3D Tiles数据中无此属性会报错，该属性名根据数据中的属性名进行更改
+                    ["${status} === 2", "rgb(102, 71, 151)"],
+                    ["${status} === 3", "rgb(170, 162, 204)"],
+                    ["${status} === 4", "rgb(224, 226, 238)"],
+                    ["true", "rgb(127, 59, 8)"]
+                ]
+            }
+        });
+        changsha.style = heightStyle;
 
         // /**
         //  * @description: 日照阴影效果模拟

@@ -58,7 +58,7 @@
                 // url: "http://192.168.1.84:8888/bm/map/{z}/{x}/{y}",
                 // url: "http://localhost:5000/map-12/{x}/{y}/{z}",
                 // 本地
-                url: "http://localhost:8889/bm/map/{z}/{x}/{y}",
+                url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
                 // 谷歌
                 // url: "http://khms0.google.com/kh/v=908?&x={x}&y={y}&z={z}",
                 // 高德
@@ -114,7 +114,7 @@
         // let changsha = 'http://192.168.11.4:9000/geojson//7684a704-1de4-4b22-8304-d4fdf7f0af8a.geojson';
         // 加载路网geojson数据
         // let gansu  = './土地利用.geojson'
-        let changsha = './cs.geojson';
+        let changsha = './output/output/NEW_TB_struct_shake_.geojson';
         Cesium.GeoJsonDataSource.load(changsha ,{
             clampToGround: true,//开启贴地
         }).then(function (dataSource) {
