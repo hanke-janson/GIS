@@ -116,6 +116,7 @@
         // let gansu  = './土地利用.geojson'
         let changsha = './output/output/NEW_TB_struct_shake_.geojson';
         Cesium.GeoJsonDataSource.load(changsha ,{
+            
             clampToGround: true,//开启贴地
         }).then(function (dataSource) {
             viewer.dataSources.add(dataSource);

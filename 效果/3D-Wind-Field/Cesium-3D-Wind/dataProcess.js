@@ -22,7 +22,7 @@ var DataProcess = (function () {
                 data.dimensions = {};
                 data.dimensions.lon = dimensions['lon'].size;
                 data.dimensions.lat = dimensions['lat'].size;
-                data.dimensions.lev = dimensions['lev'].size;
+                data.dimensions.lev = dimensions["time"].size;
 
                 var variables = arrayToMap(NetCDF.variables);
                 var uAttributes = arrayToMap(variables['U'].attributes);
@@ -39,19 +39,19 @@ var DataProcess = (function () {
                 data.lat.max = Math.max(...data.lat.array);
 
                 data.lev = {};
-                data.lev.array = new Float32Array(NetCDF.getDataVariable('lev').flat());
+                data.lev.array = new Float32Array(NetCDF.getDataVariable('time').flat());
                 data.lev.min = Math.min(...data.lev.array);
                 data.lev.max = Math.max(...data.lev.array);
 
                 data.U = {};
                 data.U.array = new Float32Array(NetCDF.getDataVariable('U').flat());
-                data.U.min = uAttributes['min'].value;
-                data.U.max = uAttributes['max'].value;
+                data.U.min = 0;
+                data.U.max = 0;
 
                 data.V = {};
                 data.V.array = new Float32Array(NetCDF.getDataVariable('V').flat());
-                data.V.min = vAttributes['min'].value;
-                data.V.max = vAttributes['max'].value;
+                data.V.min = 0;
+                data.V.max = 0;
 
                 resolve(data);
             };
