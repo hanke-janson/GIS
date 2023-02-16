@@ -1,0 +1,15 @@
+server:
+  port: 8080
+spring:
+  servlet:
+    multipart:
+      # maxFileSize 单个数据大小
+      maxFileSize: -1
+      # maxRequestSize 是总数据大小
+      maxRequestSize: -1
+volPath: /root/tmp/docker/gdal/shp/
+Jsch:
+  sshHost: 192.168.23.128
+  sshPort: 22
+  sshUser: root
+  sshPass: root
