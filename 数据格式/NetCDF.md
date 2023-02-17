@@ -66,3 +66,21 @@ NetCDF文件中的数据以数组形式存储，例如，某个位置处随时�
 文件后缀是`.nc` 可以使用ArcGIS加载
 
 > 多维工具-创建NetCDF栅格图层：加载.nc数据
+
+前端netcdfjs   https://github.com/cheminfo/netcdfjs
+
+后端geotools   gt-netcdf
+
+https://www.unidata.ucar.edu/software/netcdf/examples/programs/
+
+
+
+气象数据 QGIS ArcGIS matlab 可打开
+
+可用java python等处理
+
+Cesium加载nc例子
+
+https://github.com/AlbertEjiestein/Wind-Field-Cesium
+
+前端可以用热力图的方式去加载解析出来的nc数据，根据time字段去展现不同时间nc数据的变化

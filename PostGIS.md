@@ -4044,3 +4044,5 @@ https://blog.csdn.net/qq_35241223/article/details/106439268?spm=1001.2101.3001.6
 # PG 栅格数据扩展
 
 [_PostGIS_ Raste](https://www.baidu.com/link?url=U6ec9BBC79b5UCCEbVrfQ8w4YvhaF5VSfvBEGR1PIsqWFcPUi0My7_BmKNDLmUlx&wd=&eqid=ebea81da000033ae0000000663aaab61)
+
+java pg shp,geojson 入库
