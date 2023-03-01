@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.11.4:5432/drone
+    username: postgres
+    password: 123456
+server:
+  port: 9090
+geoserver:
+  url: http://localhost:8080/geoserver
+  username: admin
+  password: geoserver

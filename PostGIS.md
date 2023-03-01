@@ -4042,3 +4042,104 @@ https://blog.csdn.net/qq_35241223/article/details/106439268?spm=1001.2101.3001.6
 [_PostGIS_ Raste](https://www.baidu.com/link?url=U6ec9BBC79b5UCCEbVrfQ8w4YvhaF5VSfvBEGR1PIsqWFcPUi0My7_BmKNDLmUlx&wd=&eqid=ebea81da000033ae0000000663aaab61)
 
 java pg shp,geojson 入库
+
+类型转换@MapperScans(value = {@MapperScan("com.gkestor.pg.mapper"), @MapperScan("com.gkestor.pg.typeHandler")})
+
+```java
+package com.gkestor.pg.typeHandler;
+
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.MappedTypes;
+import org.postgis.PGgeometry;
+
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@MappedTypes(value = {String.class})
+public class GeometryTypeHandler extends BaseTypeHandler<String> {
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, String parameter, JdbcType jdbcType) throws SQLException {
+        PGgeometry pGgeometry = new PGgeometry(parameter);
+        ps.setObject(i, pGgeometry);
+    }
+
+    @Override
+    public String getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        PGgeometry pGgeometry = new PGgeometry(rs.getString(columnName));
+        if (pGgeometry == null) {
+            return null;
+        }
+        return pGgeometry.toString();
+    }
+
+    @Override
+    public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        PGgeometry pGgeometry = new PGgeometry(rs.getString(columnIndex));
+        if (pGgeometry == null) {
+            return null;
+        }
+        return pGgeometry.toString();
+    }
+
+    @Override
+    public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        PGgeometry pGgeometry = new PGgeometry(cs.getString(columnIndex));
+        if (pGgeometry == null) {
+            return null;
+        }
+        return pGgeometry.toString();
+    }
+}
+```
+
+springUtils
+
+```java
+package com.gkestor.pg.unit;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Component
+public class SpringUtils implements ApplicationContextAware {
+
+    private static ApplicationContext applicationContext;
+
+    // applicationContext 引用程序上下文
+    // Spring初始化时，扫描到该类，就会通过该方法将ApplicationContext对象注入
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        SpringUtils.applicationContext = applicationContext;
+    }
+
+    // 通过名称获取
+    public static <T> T getBean(String beanName) {
+        // 判断是否包含这个名称的Bean
+        if(applicationContext.containsBean(beanName)){
+            return (T) applicationContext.getBean(beanName);
+        }else{
+            return null;
+        }
+    }
+
+    // 通过类型获取
+    public static <T> Map<String, T> getBeansOfType(Class<T> baseType){
+        return applicationContext.getBeansOfType(baseType);
+    }
+}
+```
+
+# tips:
+
+postgresql 插入时返回新增数据的 id (returning 字段名)
+
+```sql
+insert into staff(name,email,address,dept_id) values('wf','3023@qq.com','合肥',001) returning id;
+```

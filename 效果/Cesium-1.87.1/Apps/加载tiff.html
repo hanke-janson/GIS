@@ -1,95 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <!-- Use correct character set. -->
     <meta charset="utf-8" />
     <!-- Tell IE to use the latest, best version. -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
     <title>Hello World!</title>
     <script src="../Build/Cesium/Cesium.js"></script>
     <style>
-        @import url(../Build/Cesium/Widgets/widgets.css);
+      @import url(../Build/Cesium/Widgets/widgets.css);
 
-        html,
-        body,
-        #cesiumContainer {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="cesiumContainer" class="fullSize"></div>
     <script>
-        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOWQ0M2FlYy02ZGNjLTQzMWYtYTdlZC05MmMwNmMxYzQ3ZWMiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NzIzNzI5MTZ9.snkEDOgQqVKrCIO7P_-JlSwOHxiVEo8sCx315uAJJ6E'
-        viewer = new Cesium.Viewer("cesiumContainer", {
-            animation: false, // 隐藏动画控件
-            baseLayerPicker: false, // 隐藏图层选择控件
-            fullscreenButton: false, // 隐藏全屏按钮
-            vrButton: false, // 隐藏VR按钮，默认false
-            geocoder: false, // 隐藏地名查找控件
-            homeButton: false, // 隐藏Home按钮
-            infoBox: false, // 隐藏点击要素之后显示的信息窗口
-            sceneModePicker: false, // 隐藏场景模式选择控件
-            selectionIndicator: true, // 显示实体对象选择框，默认true
-            timeline: true, // 隐藏时间线控件
-            navigationHelpButton: false, // 隐藏帮助按钮
-            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
-            shouldAnimate: true, // 开启动画自动播放
-            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
-            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
-            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
-            // maximumRenderTimeChange: Infinity,
-            imageryProvider: new Cesium.UrlTemplateImageryProvider({
-                url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
-                maximumLevel: 14,
-            })
-        })
-        // 去除logo
-        viewer.cesiumWidget.creditContainer.style.display = "none";
-        viewer.scene.screenSpaceCameraController.enableCollisionDetection = false
-        // viewer.terrainProvider = Cesium.createWorldTerrain();
+      Cesium.Ion.defaultAccessToken =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOWQ0M2FlYy02ZGNjLTQzMWYtYTdlZC05MmMwNmMxYzQ3ZWMiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NzIzNzI5MTZ9.snkEDOgQqVKrCIO7P_-JlSwOHxiVEo8sCx315uAJJ6E";
+      viewer = new Cesium.Viewer("cesiumContainer", {
+        animation: true, // 隐藏动画控件
+        baseLayerPicker: false, // 隐藏图层选择控件
+        fullscreenButton: false, // 隐藏全屏按钮
+        vrButton: false, // 隐藏VR按钮，默认false
+        geocoder: false, // 隐藏地名查找控件
+        homeButton: false, // 隐藏Home按钮
+        infoBox: false, // 隐藏点击要素之后显示的信息窗口
+        sceneModePicker: false, // 隐藏场景模式选择控件
+        selectionIndicator: true, // 显示实体对象选择框，默认true
+        timeline: true, // 隐藏时间线控件
+        navigationHelpButton: false, // 隐藏帮助按钮
+        scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+        shouldAnimate: true, // 开启动画自动播放
+        sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+        requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+        // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+        // maximumRenderTimeChange: Infinity,
+        imageryProvider: new Cesium.UrlTemplateImageryProvider({
+          url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
+          maximumLevel: 14,
+        }),
+      });
+      // 去除logo
+      viewer.cesiumWidget.creditContainer.style.display = "none";
+      viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+      // viewer.terrainProvider = Cesium.createWorldTerrain();
     </script>
     <script>
-        //创建一个图层（geoserver中的tiff）
-        let day = '01';
-        let month = 'MAR';
-        let year = '2020 ';
-        let hour = '17 ';
-        let minute = '10 ';
-        let second = '00';
-        let time = day + month + year + hour + minute + second;
-        var wmsProvider = new Cesium.WebMapServiceImageryProvider({
-            // geoserver服务地址
-            url: 'http://localhost:8080/geoserver/test/wms',
-            // 工作区名：图层名
-            layers: 'test:' + 'Depth (' + time + ')',
-            parameters: {
-                service: 'WMS',
-                format: 'image/png',
-                // 坐标系 cesium只支持4326和3857
-                srs: 'EPSG:4326',
-                // srs: 'EPSG:32651',
-                // 务必设置为true 否则不显示底图
-                transparent: true,
-            }
+      //创建一个图层（geoserver中的tiff）
+      // let day = '01';
+      // let month = 'MAR';
+      // let year = '2020 ';
+      // let hour = '17 ';
+      // let minute = '10 ';
+      // let second = '00';
+      // let time = day + month + year + hour + minute + second;
+      var wmsProvider = new Cesium.WebMapServiceImageryProvider({
+        // geoserver服务地址
+        url: "http://localhost:8080/geoserver/test001/wms",
+        // 工作区名：图层名
+        layers: "test001:Concentration_1.tif",
+        // layers: 'test:' + 'Depth (' + time + ')',
+        parameters: {
+          service: "WMS",
+          format: "image/png",
+          // 坐标系 cesium只支持4326和3857
+          srs: "EPSG:4326",
+          // srs: 'EPSG:32651',
+          // 务必设置为true 否则不显示底图
+          transparent: true,
+        },
+      });
+      var layer = viewer.imageryLayers.addImageryProvider(wmsProvider);
+      layer.alpha = 0.7;
 
-        });
-        viewer.imageryLayers.addImageryProvider(wmsProvider);
-
-        viewer.camera.setView({
-            destination: Cesium.Cartesian3.fromDegrees(121.49, 25.09, 20000.0),   // 经纬度和高度
-        });
-
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(121.51898, 25.10815, 2000.0), // 经纬度和高度
+      });
     </script>
-</body>
-
+  </body>
 </html>

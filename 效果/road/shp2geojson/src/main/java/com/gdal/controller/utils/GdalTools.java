@@ -1,16 +1,8 @@
 package com.gdal.controller.utils;
 
-import cn.hutool.core.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.gdal.gdal.Band;
-import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
-import org.gdal.gdalconst.gdalconst;
-import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.*;
-import org.gdal.osr.SpatialReference;
-
-import java.io.File;
 
 @Slf4j
 public class GdalTools {
@@ -47,9 +39,5 @@ public class GdalTools {
                 dataSource.delete();
             }
         }
-    }
-
-    public static void tiff2Shp(String tiffPath, String shpPath) {
-       
     }
 }
