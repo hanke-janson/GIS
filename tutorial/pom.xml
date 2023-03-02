@@ -19,6 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.deploy.skip>true</maven.deploy.skip>
         <geotools.version>28-SNAPSHOT</geotools.version>
+        <proj4j.version>1.2.3</proj4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -85,7 +86,16 @@
             <artifactId>gt-shapefile</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.locationtech.proj4j</groupId>
+            <artifactId>proj4j</artifactId>
+            <version>${proj4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.proj4j</groupId>
+            <artifactId>proj4j-epsg</artifactId>
+            <version>${proj4j.version}</version>
+        </dependency>
         <!--geotools.version 为25.0以上 -->
         <dependency>
             <groupId>org.geotools</groupId>

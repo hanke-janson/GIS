@@ -2,6 +2,11 @@
 
 ## Example
 
+update vegetation_wgs84 set geom = vegetation_gcj02.geom from (
+select gid, geoc_wgs84togcj02(geom) as geom from vegetation_wgs84
+) vegetation_gcj02
+where vegetation_gcj02.gid = vegetation_wgs84.gid
+
 ```sql
 -- 如果转换后结果为null，查看geom的srid是否为4326或者4490
 WGS84转GCJ02

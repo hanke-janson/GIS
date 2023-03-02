@@ -6,6 +6,7 @@ import numpy as np
 import netCDF4 as nc
 from osgeo import gdal, osr, ogr
 import os
+import pycrs
 
 # 重装pyproj解决 坐标查询报错的问题 conda install pyproj
 os.environ['PROJ_LIB'] = r'C:\Users\admin\.conda\envs\nc2tiff\Library\share\proj'
@@ -200,4 +201,13 @@ def nc_to_tiffs(data, out_dir):
     print('ALL IS ok   !!!!!')
 
 
-nc_to_tiffs(Input_data, Out_dir)
+# nc_to_tiffs(Input_data, Out_dir)
+
+
+def esri_wkt_to_proj(esri_wkt):
+    # wkt text可以直接从ArcGIS导出
+    print(pycrs.parse.from_esri_wkt(esri_wkt).to_proj4())
+
+
+esri_wkt = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+esri_wkt_to_proj(esri_wkt)
