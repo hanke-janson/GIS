@@ -1,8 +1,12 @@
 package com.gdal.controller.utils;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.gdal.gdal.gdal;
+import org.gdal.gdal.*;
+import org.gdal.gdal.ProgressCallback;
+import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.*;
+import org.gdal.ogr.Driver;
 
 @Slf4j
 public class GdalTools {
@@ -38,6 +42,24 @@ public class GdalTools {
             if (dataSource != null) {
                 dataSource.delete();
             }
+        }
+    }
+
+    public static void gdaladdo(String tiffPath) {
+        gdal.AllRegister();
+        Dataset dataset = gdal.Open(tiffPath, gdalconstConstants.GA_ReadOnly);
+        dataset.BuildOverviews("nearest", new int[]{2, 4, 6, 8, 16}, new buildOverViewCallBack());
+    }
+
+    //进度回调
+    static class buildOverViewCallBack extends ProgressCallback {
+        @Override
+        public int run(double dfComplete, String pszMessage) {
+            if (StrUtil.isNotBlank(pszMessage)) {
+                System.out.println(pszMessage);
+            }
+            System.out.printf("%.2f%n", dfComplete * 100);
+            return 1;
         }
     }
 }

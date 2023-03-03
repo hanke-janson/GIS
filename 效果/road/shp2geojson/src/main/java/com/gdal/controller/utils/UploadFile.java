@@ -1,36 +1,23 @@
-package com.gdal.controller;
+package com.gdal.controller.utils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Slf4j
-@RestController
-@RequestMapping("/gdal")
-public class Shp2geojson {
-
+public class UploadFile {
     /**
-     * shp文件转geojson文件接口
-     * 注shp相关文件需一同上传
+     * 上传文件， 注shp相关文件需一同上传,返回服务器上shp文件地址
      */
-    @PostMapping("/shp2geojson")
-    public void shp2GeoJson(MultipartFile[] files) throws Exception {
-        // 上传文件到服务器
-        upload(files);
-        log.info("上传文件成功！");
-
-    }
-
-    /**
-     * 上传文件，返回服务器上shp文件地址
-     */
-    public void upload(MultipartFile[] files) throws Exception {
+    public String upload(MultipartFile[] files) throws Exception {
         BufferedInputStream in;
         BufferedOutputStream out;
         String volPath = "/root/updown/";
         String fileName = "";
+        ArrayList<String> paths = new ArrayList<>();
         for (MultipartFile multipartFile : files) {
             InputStream is = multipartFile.getInputStream();
             // 获取文件名
@@ -43,10 +30,13 @@ public class Shp2geojson {
             while ((len = in.read(b)) != -1) {
                 out.write(b, 0, len);
             }
-            log.info(volPath+fileName);
+            if (Objects.requireNonNull(fileName).contains(".shp")) {
+                paths.add(volPath + fileName);
+            }
             in.close();
             out.close();
         }
+        return paths.get(0);
     }
 
     /**
