@@ -12,6 +12,7 @@ public class gdalTest {
     }
     @Test
     public void TestGdaladdo(){
-
+        String tiffPath = "D:\\tiff-test\\test-40g.tif";
+        GdalTools.gdaladdo(tiffPath);
     }
 }
