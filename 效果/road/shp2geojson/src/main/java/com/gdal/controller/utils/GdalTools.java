@@ -40,4 +40,8 @@ public class GdalTools {
             }
         }
     }
+
+    public static void gdaladdo(){
+
+    }
 }
