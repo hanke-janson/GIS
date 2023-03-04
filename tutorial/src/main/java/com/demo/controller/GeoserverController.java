@@ -17,10 +17,9 @@ public class GeoserverController {
 
     @GetMapping("/releaseTiff")
     public ArrayList<String> releaseTiff(@RequestParam String workspace,
-                                         @RequestParam String filePath,
-                                         @RequestParam String stylePath) {
+                                         @RequestParam String filePath) {
         try {
-            return geoserver.releaseTiff(workspace, filePath, stylePath);
+            return geoserver.releaseTiff(workspace, filePath);
         } catch (Exception e) {
             e.printStackTrace();
         }

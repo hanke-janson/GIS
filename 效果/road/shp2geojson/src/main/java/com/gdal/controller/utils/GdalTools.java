@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.gdal.gdal.*;
 import org.gdal.gdal.ProgressCallback;
+import org.gdal.gdalconst.gdalconst;
 import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.*;
 import org.gdal.ogr.Driver;
@@ -81,9 +82,17 @@ public class GdalTools {
         // GDALOpen的访问权限参数会影响图像的创建金字塔方式
         Dataset dataset = gdal.Open(tiffPath, gdalconstConstants.GA_Update);
         Vector<String> options = new Vector<>();
-        options.add("-r average");
-        options.add("--config BIGTIFF_OVERVIEW YES");
-        dataset.BuildOverviews("nearest", new int[]{2, 4, 8, 16, 32, 64}, new buildOverViewCallBack(), options);
+        options.add("GDAL_NUM_THREADS=ALL_CPUS");
+        options.add("GDAL_TIFF_OVR_BLOCKSIZE=256");
+        options.add("BIGTIFF_OVERVIEW=IF_SAFER");
+        // 命令：gdaladdo -r average --config GDAL_NUM_THREADS ALL_CPUS --config GDAL_TIFF_OVR_BLOCKSIZE 256 --config BIGTIFF_OVERVIEW IF_SAFER D:\**.tif 2 4 8 16 32 64 128
+        // BuildOverviews()返回值0为成功 其他值为失败
+        int nearest = dataset.BuildOverviews("average", new int[]{2, 4, 8, 16, 32, 64, 128}, new buildOverViewCallBack(), options);
+        if (nearest == 0) {
+            System.out.println("转换成功！");
+        } else {
+            System.out.println("转换失败！");
+        }
     }
 
     //进度回调
@@ -98,7 +107,8 @@ public class GdalTools {
             // 获取第一条控制台报错信息
             String errorMsg = gdal.GetLastErrorMsg();
             if (StrUtil.isNotBlank(errorMsg)) {
-                throw new Exception(errorMsg);
+//                throw new Exception(errorMsg);
+                System.out.println(errorMsg);
             }
            /* // 完全关闭错误信息
             gdal.PushErrorHandler("CPLQuietErrorHandler");
@@ -109,7 +119,7 @@ public class GdalTools {
             } catch (Exception e) {
                 e.printStackTrace();
             }*/
-            // 打印内建金字塔进度
+            // 打印gdal操作的进度
             System.out.printf("%.2f%%\n", dfComplete * 100);
             // 返回0表示中断处理  返回其他值表示继续处理
             return 1;
