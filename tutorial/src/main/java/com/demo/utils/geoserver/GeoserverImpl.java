@@ -39,7 +39,7 @@ public class GeoserverImpl implements IGeoserver {
      * 发布tiff文件
      */
     @Override
-    public ArrayList<String> releaseTiff(String workspace, String fileUrl, String styleUrl) throws Exception {
+    public ArrayList<String> releaseTiff(String workspace, String fileUrl) throws Exception {
         ArrayList<String> layers = new ArrayList<>();
         // 创建工作区;
         if (isWorkSpace(workspace)) {

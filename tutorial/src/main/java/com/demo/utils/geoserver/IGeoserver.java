@@ -10,7 +10,7 @@ public interface IGeoserver {
      * @return 已发布的wms链接和layers
      * @throws Exception
      */
-    ArrayList<String> releaseTiff(String workspace, String fileUrl,String stylePath) throws Exception;
+    ArrayList<String> releaseTiff(String workspace, String fileUrl) throws Exception;
     /**
      * 发布sld样式文件
      */
