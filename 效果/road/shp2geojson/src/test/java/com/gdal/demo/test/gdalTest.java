@@ -37,7 +37,7 @@ public class gdalTest {
 
     // 批量处理有风险
     @Test
-    public void TestGdaladdoN() {nei
+    public void TestGdaladdoN() {
         String tiffPath = "";
         File file = new File(tiffPath);
         // 判断File对象对应的目录是否存在
