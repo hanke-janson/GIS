@@ -28,7 +28,7 @@ public class gdalTest {
 
     @Test
     public void TestGdaladdo() {
-        String tiffPath = "D:\\tiff-test\\横须贺2018.tif";
+        String tiffPath = "D:\\tiff-test\\GF2_PMS1_E108.2_N16.2_20170416_L2A0002308895_PAN.tiff";
         long startTime = System.currentTimeMillis(); //获取开始时间
         GdalTools.gdaladdoBuiltInPyramid(tiffPath);
         long endTime = System.currentTimeMillis(); //获取结束时间
@@ -37,7 +37,7 @@ public class gdalTest {
 
     // 批量处理有风险
     @Test
-    public void TestGdaladdoN() {
+    public void TestGdaladdoN() {nei
         String tiffPath = "";
         File file = new File(tiffPath);
         // 判断File对象对应的目录是否存在
