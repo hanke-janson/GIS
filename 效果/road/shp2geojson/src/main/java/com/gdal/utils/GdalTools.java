@@ -1,7 +1,7 @@
-package com.gdal.controller.utils;
+package com.gdal.utils;
 
 import cn.hutool.core.util.StrUtil;
-import com.gdal.controller.constant.Resampling;
+import com.gdal.constant.Resampling;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.gdal.gdal.*;
@@ -69,7 +69,7 @@ public class GdalTools {
         Vector<String> options = new Vector<>();
         options.add("-r average");
         options.add("--config BIGTIFF_OVERVIEW YES");
-        dataset.BuildOverviews("nearest", new int[]{2, 4, 8, 16, 32, 64}, new buildOverViewCallBack(), options);
+//        dataset.BuildOverviews("nearest", new int[]{2, 4, 8, 16, 32, 64}, new buildOverViewCallBack(), options);
     }
 
     /**
@@ -77,13 +77,16 @@ public class GdalTools {
      *
      * @param tiffPath tiff路径 注：内建金字塔无法恢复源文件
      */
-    public static void gdaladdoBuiltInPyramid(String tiffPath, Vector<String> options) {
+    public static void gdaladdoBuiltInPyramid(String tiffPath) {
         gdal.AllRegister();
+        gdal.SetConfigOption("GDAL_NUM_THREADS","ALL_CPUS");
+        gdal.SetConfigOption("GDAL_TIFF_OVR_BLOCKSIZE","256");
+        gdal.SetConfigOption("BIGTIFF_OVERVIEW","IF_SAFER");
         // GDALOpen的访问权限参数会影响图像的创建金字塔方式
         Dataset dataset = gdal.Open(tiffPath, gdalconstConstants.GA_Update);
         // 命令：gdaladdo -r average --config GDAL_NUM_THREADS ALL_CPUS --config GDAL_TIFF_OVR_BLOCKSIZE 256 --config BIGTIFF_OVERVIEW IF_SAFER D:\**.tif 2 4 8 16 32 64 128
         // BuildOverviews()返回值0为成功 其他值为失败   如果没有建立金字塔 会直接返回其他值 - 失败    只要执行了 那就返回0 - 成功
-        int nearest = dataset.BuildOverviews(Resampling.AVERAGE, new int[]{2, 4, 8, 16, 32, 64, 128}, new buildOverViewCallBack(), options);
+        int nearest = dataset.BuildOverviews(Resampling.AVERAGE, new int[]{2, 4, 8, 16, 32, 64, 128}, new buildOverViewCallBack());
         // 关闭数据集并释放所有资源
         dataset.delete();
         if (nearest == 0) {
@@ -107,7 +110,7 @@ public class GdalTools {
             String errorMsg = gdal.GetLastErrorMsg();
             if (StrUtil.isNotBlank(errorMsg)) {
 //                throw new Exception(errorMsg);
-                System.out.println("error: "+errorMsg);
+                System.out.println("error: " + errorMsg);
             }
            /* // 完全关闭错误信息
             gdal.PushErrorHandler("CPLQuietErrorHandler");

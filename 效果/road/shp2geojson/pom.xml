@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.gdal</groupId>
             <artifactId>gdal</artifactId>
-            <version>3.6.2</version>
+            <version>3.5.3</version>
         </dependency>
         <!-- 上传文件到服务器 -->
         <dependency>

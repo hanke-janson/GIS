@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import static com.gdal.controller.utils.FileCheckUtil.extractChecksum;
+import static com.gdal.utils.FileCheckUtil.extractChecksum;
 
 public class FileTest {
     @Test
