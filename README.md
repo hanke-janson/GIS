@@ -20,8 +20,10 @@ GDAL shp 转 geojson 当前 postgis 也可以做
 
 ENDI 处理遥感影像
 
-FME 用作空间数据转换处理 https://zhuanlan.zhihu.com/p/484844257
+FME 用作空间数据转换处理<https://zhuanlan.zhihu.com/p/484844257>
 
 Cesiumlab 可以切片处理，3dtiles 切片等
 
 geoserver 地图发布 用插件可以金字塔切片
+
+使用<https://github.com/CesiumGS/obj2gltf> 可以将 obj 格式的模型转换为 glTF（.max 等格式的模型数据可使用 3dmax 打开）

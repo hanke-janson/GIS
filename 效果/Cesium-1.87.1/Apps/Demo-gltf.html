@@ -64,53 +64,53 @@
         })
         // 去除logo
         viewer.cesiumWidget.creditContainer.style.display = "none";
-        viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
-        // 设置相机视角位置
-        viewer.camera.setView({
-            destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
-            orientation: {
-                heading: 0.35631019520437945, // east, default value is 0.0 (north)
-                pitch: -1.5629984805761383,    // default value (looking down)
-                roll: 0.0                             // default value
-            }
-        });
-        var z = './战舰模型/hwj.gltf';
-        var model, modelin, modelroot;
-        //gltf数据加载位置——中点
-        var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(112.9459, 28.1796));
-        //加载gltf格式数据到cesium，z为模型名称，modelMatrix为模型中心点的经纬度坐标
-        function model_add(url) {
-            /*        let index = url.lastIndexOf("/"); // lastIndexOf("/")  找到最后一个  /  的位置
-                    let fileName = url.substr(index + 1); // substr() 截取剩余的字符，即得文件名xxx.doc*/
-            model = viewer.scene.primitives.add(Cesium.Model.fromGltf({
-                url: url,
-                modelMatrix: modelMatrix,
-                scale: 10.0,  //放大倍数
-            }));
-            /*获取3D model 的旋转矩阵modelMatrix*/
-            let m = model.modelMatrix;
-            //构建一个三阶旋转矩阵。模型旋转一定的角度，fromRotation[Z]来控制旋转轴，toRadians()为旋转角度，转为弧度再参与运算
-            let m1 = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(-100));
-            //矩阵计算
-            Cesium.Matrix4.multiplyByMatrix3(m, m1, m);
-            //将计算结果再赋值给modelMatrix
-            model.modelMatrix = m;
-        }
-        model_add(z);
-
-
-        // // 加载glTF模型
-        // const modelEntity = viewer.entities.add({
-        //     name: "glTF模型",
-        //     position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
-        //     model: {
-        //         uri: './js/csosm.gltf',
-        //         minimumPixelSize: 256,
-        //         scale: 1.0, // 调节模型大小
-        //     },
+        // viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
+        // // 设置相机视角位置
+        // viewer.camera.setView({
+        //     destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
+        //     orientation: {
+        //         heading: 0.35631019520437945, // east, default value is 0.0 (north)
+        //         pitch: -1.5629984805761383,    // default value (looking down)
+        //         roll: 0.0                             // default value
+        //     }
         // });
-        // // 聚焦模型
-        // viewer.trackedEntity = modelEntity;
+        // var z = './战舰模型/hwj.gltf';
+        // var model, modelin, modelroot;
+        // //gltf数据加载位置——中点
+        // var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(112.9459, 28.1796));
+        // //加载gltf格式数据到cesium，z为模型名称，modelMatrix为模型中心点的经纬度坐标
+        // function model_add(url) {
+        //     /*        let index = url.lastIndexOf("/"); // lastIndexOf("/")  找到最后一个  /  的位置
+        //             let fileName = url.substr(index + 1); // substr() 截取剩余的字符，即得文件名xxx.doc*/
+        //     model = viewer.scene.primitives.add(Cesium.Model.fromGltf({
+        //         url: url,
+        //         modelMatrix: modelMatrix,
+        //         scale: 10.0,  //放大倍数
+        //     }));
+        //     /*获取3D model 的旋转矩阵modelMatrix*/
+        //     let m = model.modelMatrix;
+        //     //构建一个三阶旋转矩阵。模型旋转一定的角度，fromRotation[Z]来控制旋转轴，toRadians()为旋转角度，转为弧度再参与运算
+        //     let m1 = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(-100));
+        //     //矩阵计算
+        //     Cesium.Matrix4.multiplyByMatrix3(m, m1, m);
+        //     //将计算结果再赋值给modelMatrix
+        //     model.modelMatrix = m;
+        // }
+        // model_add(z);
+
+
+        // 加载glTF模型
+        const modelEntity = viewer.entities.add({
+            name: "glTF模型",
+            position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
+            model: {
+                uri: './KZ-11.gltf',
+                minimumPixelSize: 256,
+                scale: 1.0, // 调节模型大小
+            },
+        });
+        // 聚焦模型
+        viewer.trackedEntity = modelEntity;
     </script>
 </body>
 

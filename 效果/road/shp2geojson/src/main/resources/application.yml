@@ -7,7 +7,6 @@ spring:
       maxFileSize: -1
       # maxRequestSize 是总数据大小
       maxRequestSize: -1
-volPath: /root/tmp/docker/gdal/shp/
 Jsch:
   sshHost: 192.168.23.128
   sshPort: 22

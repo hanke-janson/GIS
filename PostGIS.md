@@ -4143,3 +4143,9 @@ postgresql 插入时返回新增数据的 id (returning 字段名)
 ```sql
 insert into staff(name,email,address,dept_id) values('wf','3023@qq.com','合肥',001) returning id;
 ```
+
+通过缓冲区范围来画圆
+
+```sql
+SELECT st_asGeojson(GEOC_BD09TOGCJ02(st_setsrid(ST_Buffer(ST_MakePoint(112.99358848,28.20645952)::geography, 500)::geometry,4326)));
+```
