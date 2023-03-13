@@ -30,7 +30,8 @@ proj-strings 保存给定坐标变换的参数，例如
 +proj=merc +lat_ts=56.5 +ellps=GRS80
 ```
 
-即，proj-string 由投影说明符 、+proj 适用于投影的多个参数以及（如果需要）对基准偏移的描述组成。在上面的例子中，大地坐标被转换为墨卡托投影的投影空间，真实比例的纬度在 GRS80 椭球上北纬 56.5 度。PROJ 中的每个投影都由一个简写标识，merc 如上例所示。
+即，proj-string 由投影说明符 、+proj 适用于投影的多个参数以及（如果需要）对基准偏移的描述组成。在上面的例子中，大地坐标被转换为墨卡托投影的投影空间，真实比例的纬度在 GRS80 椭球上北纬 56.5 度。PROJ
+中的每个投影都由一个简写标识，merc 如上例所示。
 
 通过使用上述投影定义作为命令行实用程序 proj 的参数，我们可以将大地坐标转换为投影空间：
 
@@ -103,9 +104,11 @@ PROJ 的基础是库中提供的大量[投影](https://proj.org/operations/proje
 
 ## 单位(units)
 
-水平单位可以使用`+units`关键字指定一个单位的符号名(如:`us-ft`)。另外转换为米单位可以使用`+to_meter`关键字指定(如: 美国英尺为 0.304800609601219 米)。`-lu`参数用于 cs2cs 或 proj 可以列出支持单位名称.默认单位是度(degrees)。
+水平单位可以使用`+units`关键字指定一个单位的符号名(如:`us-ft`)。另外转换为米单位可以使用`+to_meter`关键字指定(如: 美国英尺为 0.304800609601219 米)。`-lu`参数用于 cs2cs 或
+proj 可以列出支持单位名称.默认单位是度(degrees)。
 
-垂直单位(Z)可以使用`+vunits`关键字指定一个单位的符号名(如: `us-ft`)。另外转换为米单位可以使用`+vto_meter`关键字指定(如: 美国英尺为 0.304800609601219 米).`-lu`参数用于 cs2cs 或 proj 可以列出支持单位名称。如果没有指定垂直单位，垂直单元将默认为与水平坐标相同的.
+垂直单位(Z)可以使用`+vunits`关键字指定一个单位的符号名(如: `us-ft`)。另外转换为米单位可以使用`+vto_meter`关键字指定(如: 美国英尺为 0.304800609601219 米).`-lu`参数用于
+cs2cs 或 proj 可以列出支持单位名称。如果没有指定垂直单位，垂直单元将默认为与水平坐标相同的.
 
 > [proj](https://proj.org/apps/proj.html#proj)根本不处理垂直单位，因此`+vto_meter`参数将被忽略。
 
@@ -190,11 +193,13 @@ cs2cs +proj=latlong +datum=WGS84 +to +proj=latlong +datum=WGS84 +pm=madrid
 
 # 大地变换
 
-PROJ 可以做任何事情，从最简单的投影到跨多个参考系的非常复杂的转换。虽然最初是作为制图投影工具开发的，但随着时间的推移，PROJ 已经发展成为一个强大的通用坐标转换引擎，可以在大地测量高精度水平上进行大规模制图投影和坐标转换。本章深入探讨了如何执行不同复杂度的大地测量变换的细节。
+PROJ 可以做任何事情，从最简单的投影到跨多个参考系的非常复杂的转换。虽然最初是作为制图投影工具开发的，但随着时间的推移，PROJ
+已经发展成为一个强大的通用坐标转换引擎，可以在大地测量高精度水平上进行大规模制图投影和坐标转换。本章深入探讨了如何执行不同复杂度的大地测量变换的细节。
 
 在 PROJ 中，有两个用于大地测量转换的框架，`proj框架`和`cs2cs框架`。第一个是 PROJ 中用于进行大地测量转换的原始且有限的框架，第二个是一个新添加的框架，旨在成为一个更完整的转换框架。
 
-在描述这两个框架的细节之前，让我们首先注意到，大多数大地测量转换的情况都可以表示为一系列基本操作，一个操作的输出是下一个操作的输入。例如，当从 UTM 区域 32，基准 ED50，到 UTM 区域 32，基准 ETRS89 时，在最简单的情况下，必须经历 5 个步骤：
+在描述这两个框架的细节之前，让我们首先注意到，大多数大地测量转换的情况都可以表示为一系列基本操作，一个操作的输出是下一个操作的输入。例如，当从 UTM 区域 32，基准 ED50，到 UTM 区域 32，基准 ETRS89
+时，在最简单的情况下，必须经历 5 个步骤：
 
 1. 将 UTM 坐标反投影到地理坐标
 2. 将地理坐标转换为 3D 笛卡尔地心坐标
@@ -206,7 +211,7 @@ PROJ 可以做任何事情，从最简单的投影到跨多个参考系的非常
 
 PROJ 框架在做投影，坐标系转换时，其操作风格类似于 Linux Shell 命令。管道框架是通过一个特殊的投影实现的，该投影以用户提供的一系列基础操作作为参数，并将这些操作串联在一起，以实现所需要的完成转换。
 
-此外，一些基本的大地测量操作，包括 Helmert 转换、一般的高阶多项式位移和 Molodensky 模型转换，都可以作为管道的一部分。　（详见下面：基于方程式方法的坐标系转换）
+此外，一些基本的大地测量操作，包括 Helmert 转换、一般的高阶多项式位移和 Molodensky 模型转换，都可以作为管道的一部分。 （详见下面：基于方程式方法的坐标系转换）
 
 Molodensky 变换直接从一个基准面的大地坐标转换到另一个基准面的大地坐标，而 Helmert 变换(通常更准确)则从 3D 笛卡尔坐标转换到 3D 笛卡尔坐标。
 
@@ -259,7 +264,8 @@ step proj=utm ellps=GRS80 zone=33
 
 cs2cs 框架提供了管道框架中可用的大地测量转换的子集。
 
-坐标转换在 cs2cs 框架中需要经过两个转换步骤。第一步，以 WGS84 为轴心为基准面，将需要转换的数据转换为 WGS84；第二步，将转换后的 WGS84 数据再转换为特定需要的坐标系（通过利用 Helmert 赫尔默特变换或基准面改变，或两者结合）。
+坐标转换在 cs2cs 框架中需要经过两个转换步骤。第一步，以 WGS84 为轴心为基准面，将需要转换的数据转换为 WGS84；第二步，将转换后的 WGS84 数据再转换为特定需要的坐标系（通过利用 Helmert
+赫尔默特变换或基准面改变，或两者结合）。
 
 基准面的改变可以通过“ proj-string ”中的 `+towgs84`，`+nadgrids`，`+geoidgrids` 参数来定义。
 
@@ -355,8 +361,12 @@ cs2cs EPSG:4322 EPSG:4326
 - `+R_a=<value>` A sphere with R=(a+b)/2 (arithmetic mean) 一个球体 R=(a+b)/2（算术平均值）
 - `+R_g=<value>` A sphere with R=根号下 ab (geometric mean). 一个球体 R=根号下 ab （几何平均数）
 - `+R_h=<value>` A sphere with R=2ab/(a+b) (harmonic mean). 一个球体 R=2ab/(a+b)（调和平均值）
-- `+R_lat_a=<phi>` A sphere with R being the arithmetic mean of the corresponding ellipsoid at latitude <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math> 一个球体 R 是纬度上相应椭球体的算术平均值<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math>
-- `+R_lat_g =<phi>` A sphere with R being the geometric mean of the corresponding ellipsoid at latitude <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math> 一个球体 R 是纬度上相应椭球的几何平均值<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math>
+- `+R_lat_a=<phi>` A sphere with R being the arithmetic mean of the corresponding ellipsoid at
+  latitude <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math> 一个球体 R
+  是纬度上相应椭球体的算术平均值<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math>
+- `+R_lat_g =<phi>` A sphere with R being the geometric mean of the corresponding ellipsoid at
+  latitude <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math> 一个球体 R
+  是纬度上相应椭球的几何平均值<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x3D5;</mi></math>
 
 如果`+R`作为大小参数给出，则忽略任何给定的形状和球化参数。
 
@@ -380,3 +390,46 @@ cs2cs EPSG:4322 EPSG:4326
 如果 size 和 shape 给出为`ellps=xxx`，后面的 shape 和 size 参数将被考虑作为内置椭球体定义的修饰符。
 
 虽然这看起来很奇怪，但它符合 PROJ 的历史行为。例如，它可以用于定义缩放到单位半长轴的椭球坐标，方法是指定`+ellps=xxx +a=1`
+
+## 转换示例
+
+半径 7000km 的球形地球
+
+```cmd
++proj=latlon +R=7000000
+```
+
+使用 GRS80 的椭球体
+
+```cmd
++proj=latlon +ellps=GRS80
+```
+
+使用半长轴和反向展平表示椭球(1/f)
+
+```cmd
++proj=latlon +a=6378137.0 +rf=298.25
+```
+
+基于椭球体积的球形地球
+
+```cmd
++proj=latlon +a=6378137.0 +rf=298.25 +R_V
+```
+
+# 应用
+
+与 `PROJ` 捆绑在一起的是一组小型命令行实用程序。
+`proj`程序仅限于在一个基准面内在地理坐标和投影坐标之间进行转换。
+`cs2cs`程序的操作类似，但允许在任何一对可定义的坐标系之间进行转换，包括支持基准转换。
+`geod`程序提供了进行测地线（大圆）计算的能力。
+`gie`是`PROJ`中用于回归测试的程序。
+`cct`是一个与 proj 程序等效的 4D ，它对一组输入点执行变换坐标系。
+`projinfo`执行大地测量对象查询和坐标操作。
+`projsync`是一个用于同步`PROJ`数据和转换支持数据的工具。
+
+## cct
+
+坐标转换和变换
+
+### 概要
