@@ -80,7 +80,3 @@ https://www.unidata.ucar.edu/software/netcdf/examples/programs/
 Cesium 加载 nc 例子
 
 https://github.com/AlbertEjiestein/Wind-Field-Cesium
-
-前端可以用热力图的方式去加载解析出来的 nc 数据，根据 time 字段去展现不同时间 nc 数据的变化
-
-https://github.com/cheminfo/netcdfjs

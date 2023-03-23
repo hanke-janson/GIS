@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Hello World!</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        var cesiumAsset = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwYThlNjNkMC0zYTA0LTQ0NzEtOGI4ZC0zNGVkYTdhZTFjZDkiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NzY5ODQ0ODN9.PaV_WFVZv64ReCtyI6JOL-uSUoAh62Ls7PHekdslcUY";
+        Cesium.Ion.defaultAccessToken = cesiumAsset;
+        function createColorCanvas(color) {
+            var width = 1, height = 1;
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, width, height);
+            return canvas.toDataURL();
+        }
+        // 设置Cesium 默认视角
+        Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(
+            75.0, // 东
+            0.0, // 南
+            140.0, // 西
+            60.0 // 北
+        )
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: false, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            baseLayerPicker: false, // 隐藏图层选择控件
+            // 给球体设置一个纯色 避免使用Cesium Ion资源
+            imageryProvider: new Cesium.SingleTileImageryProvider({
+                url: createColorCanvas("#FFF"),
+                rectangle: Cesium.Rectangle.fromDegrees(-180.0, -90.0, 180.0, 90.0)
+            })
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            // maximumRenderTimeChange: Infinity,
+            // imageryProvider: new Cesium.UrlTemplateImageryProvider({
+            //     url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
+            //     maximumLevel: 14,
+            // })
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        const currentViewRect = viewer.camera.computeViewRectangle()
+        console.log(currentViewRect)
+    </script>
+    <script>
+        // var urlTemplateImagery = new Cesium.UrlTemplateImageryProvider({
+        //         url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
+        //         maximumLevel: 14,
+        // })
+        // imageryLayers.addImageryProvider(urlTemplateImagery);
+        // var gridImagery = new Cesium.GridImageryProvider();
+        // var gridImageryLayer = imageryLayers.addImageryProvider(gridImagery);
+        // var tileCoordinates = new Cesium.TileCoordinatesImageryProvider();
+        // var tileCoordinatesLayer = imageryLayers.addImageryProvider(tileCoordinates);
+        // imageryLayers.raiseToTop(tileCoordinatesLayer); //将图层置顶
+        var imageryLayers = viewer.scene.imageryLayers;
+        var tiandituTk = '9b8b9b2f9280bb14599a178b89973ffa';
+        // 服务负载子域
+        var subdomains = ['0', '1', '2', '3', '4', '5', '6', '7'];
+        var tdt_base = new Cesium.WebMapTileServiceImageryProvider({
+            //影像底图
+            url: "http://t{s}.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + tiandituTk,
+            subdomains: subdomains,
+            layer: "tdtImgLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",//使用谷歌的瓦片切片方式
+            show: true
+        });
+
+        var tdt_legend = new Cesium.WebMapTileServiceImageryProvider({
+            //影像注记
+            url: "http://t{s}.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + tiandituTk,
+            subdomains: subdomains,
+            layer: "tdtCiaLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+            show: true
+        })
+        imageryLayers.addImageryProvider(tdt_base);
+        imageryLayers.addImageryProvider(tdt_legend);
+
+        //添加Cesium地形图
+        var terrainProvider = new Cesium.CesiumTerrainProvider({
+            url: Cesium.IonResource.fromAssetId(1),
+            requestWaterMask: true, // 请求水体效果所需要的海岸线数据
+            requestVertexNormals: true, // 请求地形照明数据
+        });
+        viewer.terrainProvider = terrainProvider;
+    </script>
+</body>
+
+</html>

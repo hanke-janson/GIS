@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>闪电</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="cesiumContainer">
+    </div>
+    <script>
+        // Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc"
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            geocoder: false,   // 位置查找工具
+            baseLayerPicker: false,// 图层选择器（地形影像服务）
+            timeline: false, // 底部时间线
+            homeButton: false,// 视角返回初始位置
+            fullscreenButton: false, // 全屏
+            animation: false,   // 左下角仪表盘（动画器件）
+            sceneModePicker: false,// 选择视角的模式（球体、平铺、斜视平铺）
+            navigationHelpButton: false, //导航帮助按钮
+            infoBox: false,
+            // 加载本地离线地图
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                // 本地
+                url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
+                maximumLevel: 14,
+            }),
+        });
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        viewer.camera.setView({
+            destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
+            orientation: {
+                heading: 0.35631019520437945, // east, default value is 0.0 (north)
+                pitch: -1.5629984805761383,    // default value (looking down)
+                roll: 0.0                             // default value
+            }
+        });
+    </script>
+    <script>
+        var fragmentShaderSource = `
+        //计算每个渲染顶点和视点（相机）的距离
+    float getDistance(sampler2D depthTexture, vec2 texCoords){ 
+        float depth = czm_unpackDepth(texture2D(depthTexture, texCoords)); 
+        if (depth == 0.0) { 
+            return czm_infinity; 
+        } 
+        vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, depth); 
+        return -eyeCoordinate.z / eyeCoordinate.w; 
+    } 
+    //计算雾化距离（当它远离眼睛位置时，系数变小）
+    float interpolateByDistance(vec4 nearFarScalar, float distance) { 
+        float startDistance = nearFarScalar.x;//雾化的起点距离 
+        float startValue = nearFarScalar.y; 
+        float endDistance = nearFarScalar.z; 
+        float endValue = nearFarScalar.w; 
+        float t = clamp((distance - startDistance) / (endDistance - startDistance), 0.0, 1.0); 
+        return mix(startValue,endValue,t ); 
+    } 
+    vec4 alphaBlend(vec4 sourceColor, vec4 destinationColor) { 
+        return sourceColor * vec4(sourceColor.aaa, 1.0) + destinationColor * (1.0 - sourceColor.a); 
+    } 
+    uniform sampler2D colorTexture; 
+    uniform sampler2D depthTexture; 
+    uniform vec4 fogByDistance; 
+    uniform vec4 fogColor; //雾的颜色
+    varying vec2 v_textureCoordinates; 
+    void main(void) { 
+        float distance = getDistance(depthTexture, v_textureCoordinates); 
+        vec4 sceneColor = texture2D(colorTexture, v_textureCoordinates); 
+        float blendAmount = interpolateByDistance(fogByDistance, distance); 
+        vec4 finalFogColor = vec4(fogColor.rgb, fogColor.a * blendAmount); 
+        gl_FragColor = alphaBlend(finalFogColor, sceneColor); 
+    }`
+        var postProcessStage = viewer.scene.postProcessStages.add(
+            new Cesium.PostProcessStage({
+                fragmentShader: fragmentShaderSource,//shader 处理数据
+                uniforms: {
+                    //在离视点10米距离时开始雾化，10米时雾的透明度是0.0，也就是完全看不到雾的效果；在离视点距离大于等于1500米时，雾的透明度是1.0，此时，也就是看不到雾后面的景物。
+                    fogByDistance: new Cesium.Cartesian4(1000.0, 0.0, 2000, 1.0),
+                    fogColor: new Cesium.Color(1.0, 1.0, 1.0, 1.0),
+                },
+            })
+        );
+
+    </script>
+</body>
+
+</html>

@@ -795,3 +795,9 @@ var uniformMap = {
 包括各种得 czm 前缀的 uniform 设置 也是通过这个类去加载的，当然，实际上这个类在内部就已经定义有一个常量用于装载这些 uniform ![在这里插入图片描述](https://img-blog.csdnimg.cn/ee28e3bc63924c45a26bee6b6d92aa18.png)
 
 而 uniformMap 只是在往这个 AutomaticUniforms 的添加描述的属性以及值而已。这其中也解释了 uniformMap 的工作原理：借由一个描述 uniform 的对象，将实际运行在着色器中的代码增加声明，重写着色器中的代码，由 shaderProgram 进行编译，最终将该值传递至着色器中。![在这里插入图片描述](https://img-blog.csdnimg.cn/4ff39118b7e8464e8d9e99c7fed30078.png)
+
+# PostProcessStage
+
+首先要明确一点：webgl 中顶点着色器与片元着色器总是成对出现
+
+而该 API 是仅提供了片元着色器代码的入口，实际上该 API 会默认获取当前视角下的视图范围作为顶点着色器；
