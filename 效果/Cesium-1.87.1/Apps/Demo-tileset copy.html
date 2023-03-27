@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Demo-tileset</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <!-- 纠偏插件 但好像只支持在线地图
+    <script src="https://cdn.jsdelivr.net/npm/@dvgis/cesium-map"></script> -->
+    <style>
+        @import url(../Build/Cesium/Widgets/widgets.css);
+
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        // // cesium 秘钥
+        // Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODJlOTEzOC1mNDk2LTQ5ZmQtOGRiZS01MGM4NTJlODQ4OWIiLCJpZCI6MTAzMTc4LCJpYXQiOjE2NjE0OTg2OTl9.cz6BzXKJGSAgkCFfyZ9SAD_7otWUgjf6MhrySxL7bQc';
+
+        viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false, // 隐藏动画控件
+            baseLayerPicker: false, // 隐藏图层选择控件
+            fullscreenButton: false, // 隐藏全屏按钮
+            vrButton: false, // 隐藏VR按钮，默认false
+            geocoder: false, // 隐藏地名查找控件
+            homeButton: false, // 隐藏Home按钮
+            infoBox: false, // 隐藏点击要素之后显示的信息窗口
+            sceneModePicker: false, // 隐藏场景模式选择控件
+            selectionIndicator: true, // 显示实体对象选择框，默认true
+            timeline: false, // 隐藏时间线控件
+            navigationHelpButton: false, // 隐藏帮助按钮
+            scene3DOnly: true, // 每个几何实例将只在3D中呈现，以节省GPU内存
+            shouldAnimate: true, // 开启动画自动播放
+            sceneMode: 3, // 初始场景模式 1：2D 2：2D循环 3：3D，默认3
+            requestRenderMode: true, // 减少Cesium渲染新帧总时间并减少Cesium在应用程序中总体CPU使用率
+            // 如场景中的元素没有随仿真时间变化，请考虑将设置maximumRenderTimeChange为较高的值，例如Infinity
+            maximumRenderTimeChange: Infinity,
+            // 加载本地离线地图
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                // url: "http://192.168.1.84:8888/bm/map/{z}/{x}/{y}",
+                // url: "http://localhost:5000/map-12/{x}/{y}/{z}",
+                // 本地
+                url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
+                // 谷歌
+                // url: "http://khms0.google.com/kh/v=908?&x={x}&y={y}&z={z}",
+                // 高德
+                // url: "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+                maximumLevel: 14,
+            }),
+            // // 加载地形数据
+            // terrainProvider: Cesium.createWorldTerrain({
+            //     requestWaterMask: true,
+            //     requestVertexNormals: true
+            // }),
+        })
+        // 去除logo
+        viewer.cesiumWidget.creditContainer.style.display = "none";
+        // viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
+        // 设置相机视角位置
+        viewer.camera.setView({
+            destination: new Cesium.Cartesian3(-2200174.8573424825, 5195968.631983663, 3000028.3598765237),
+            orientation: {
+                heading: 0.35631019520437945, // east, default value is 0.0 (north)
+                pitch: -1.5629984805761383,    // default value (looking down)
+                roll: 0.0                             // default value
+            }
+        });
+        add3DTiles("http://192.168.11.4:9000/zchj/xiaoquyu/tileset.json", 116.2317, 39.5427,0)
+
+
+
+        // 获取当前点位经纬度
+        var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        handler.setInputAction(function (evt) {
+            var cartesian = viewer.camera.pickEllipsoid(evt.position, viewer.scene.globe.ellipsoid);
+            var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            var lng = Cesium.Math.toDegrees(cartographic.longitude);//经度值
+            var lat = Cesium.Math.toDegrees(cartographic.latitude);//纬度值
+            var mapPosition = { x: lng, y: lat, z: cartographic.height };//cartographic.height的值始终为零。
+            console.log(mapPosition);
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        // /**
+        //  * @description: 日照阴影效果模拟
+        //  * @param {*} _viewer
+        //  * @param {*} _speed：变化速率
+        //  * @return {*}
+        //  */
+        function lightingShadowInit(_viewer, _speed) {
+            _viewer.scene.globe.enableLighting = true;
+            _viewer.shadows = true;
+            _viewer.clock.multiplier = _speed;
+        }
+        // 调用
+        lightingShadowInit(viewer, 1000);
+
+
+
+
+        function add3DTiles(url, longitude, latitude, height) {
+            var tileset = viewer.scene.primitives.add(
+                new Cesium.Cesium3DTileset({
+                    url: url,
+                    maximumScreenSpaceError: 2,//默认16,最大屏幕空间错误
+                    //maximumNumberOfLoadedTiles: 1000,
+                    maximumMemoryUsage: 512//默认512,内存MB的最大数量
+                }));
+            tileset.readyPromise.then((tileset) => {
+
+                //模型加载后可能会有偏移和高度不对，需要对模型进行调整
+                tileSet(tileset, longitude, latitude, height)
+                //tileSetAll(tileset,longitude, latitude, height,0,0,0,1);
+
+                viewer.zoomTo(tileset);
+            });
+        }
+        //利用translation对模型的经度、纬度、高度进行修改
+        function tileSet(tileset, longitude, latitude, height) {
+            //3dtile模型的边界球体
+            var boundingSphere = tileset.boundingSphere;
+            //迪卡尔空间直角坐标=>地理坐标（弧度制）
+            var cartographic_original = Cesium.Cartographic.fromCartesian(boundingSphere.center);
+            //设置新的经度、纬度、高度
+            var cartographic_offset = Cesium.Cartographic.fromDegrees(longitude, latitude, height)
+            //地理坐标（弧度制）=>迪卡尔空间直角坐标
+            var Cartesian3_original = Cesium.Cartesian3.fromRadians(cartographic_original.longitude, cartographic_original.latitude, cartographic_original.height);
+            var Cartesian3_offset = Cesium.Cartesian3.fromRadians(cartographic_offset.longitude, cartographic_offset.latitude, cartographic_offset.height);
+            //获得地面和offset的转换
+            var translation = Cesium.Cartesian3.subtract(Cartesian3_offset, Cartesian3_original, new Cesium.Cartesian3());
+            //修改模型矩阵
+            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+        }
+        //利用transform对模型的所有参数进行修改
+        function tileSetAll(tileset, longitude, latitude, height, rotateX, rotateY, rotateZ, scale) {
+            //旋转角度设置
+            var mx = Cesium.Matrix3.fromRotationX(Cesium.Math.toRadians(rotateX));
+            var my = Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(rotateY));
+            var mz = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(rotateZ));
+            var rotationX = Cesium.Matrix4.fromRotationTranslation(mx);
+            var rotationY = Cesium.Matrix4.fromRotationTranslation(my);
+            var rotationZ = Cesium.Matrix4.fromRotationTranslation(mz);
+            //平移 修改经纬度
+            var position = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
+            var transform = Cesium.Transforms.eastNorthUpToFixedFrame(position);
+            //旋转、平移矩阵相乘
+            Cesium.Matrix4.multiply(transform, rotationX, transform);
+            Cesium.Matrix4.multiply(transform, rotationY, transform);
+            Cesium.Matrix4.multiply(transform, rotationZ, transform);
+            //缩放 修改缩放比例
+            var scale1 = Cesium.Matrix4.fromUniformScale(scale);
+            Cesium.Matrix4.multiply(transform, scale1, transform);
+            //赋值给tileset
+            tileset._root.transform = transform;
+
+        }
+    </script>
+</body>
+
+</html>
