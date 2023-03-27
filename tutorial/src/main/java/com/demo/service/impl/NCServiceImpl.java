@@ -1,5 +1,7 @@
 package com.demo.service.impl;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.demo.entity.Concentration;
 import com.demo.service.INCService;
 import lombok.extern.slf4j.Slf4j;
@@ -7,15 +9,55 @@ import org.springframework.stereotype.Service;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
 public class NCServiceImpl implements INCService {
     @Override
-    public ArrayList<Concentration> readNC(String ncPath) {
+    public LinkedList<LinkedHashMap<String, Double>> readKuiBaNC(String ncPath) {
+        List<String> split = StrUtil.split(ncPath, "/");
+        // 因为切过的nc文件中表示滑坡数值波段的名称为文件名
+        String fileName = StrUtil.split(split.get(split.size() - 1), ".").get(0);
+        try {
+            NetcdfFile ncFile = NetcdfFile.open(ncPath);
+            //读取变量
+            Variable value = ncFile.findVariable(fileName);
+            Variable lon = ncFile.findVariable("lon");
+            Variable lat = ncFile.findVariable("lat");
+            // 经度、纬度、值
+            double[] kuiBaLon = (double[]) lon.read().copyTo1DJavaArray();
+            double[] kuiBaLat = (double[]) lat.read().copyTo1DJavaArray();
+            double[][] kuiBaData = (double[][]) value.read().copyToNDJavaArray();//转成数组
+
+            LinkedList<LinkedHashMap<String, Double>> list = new LinkedList<>();
+            // 第一层 经度 lon 202
+            for (int i = 0; i < kuiBaData.length; i++) {
+                // 第二层 纬度 lat 203
+                for (int j = 0; j < kuiBaData[i].length; j++) {
+                    LinkedHashMap<String, Double> map = new LinkedHashMap<>();
+                    if (Double.isNaN(kuiBaData[i][j])) {
+                        String invalidValue = "NaN";
+                        log.info("lon:{},lat:{},无效值:{}", kuiBaLon[i], kuiBaLat[j], invalidValue);
+//                        kuiBaData[i][j] = -1;
+                        continue;
+                    }
+                    map.put("lon", kuiBaLon[i]);
+                    map.put("lat", kuiBaLat[j]);
+                    map.put("value", kuiBaData[i][j]);
+                    log.info("lon: {},lat: {},value: {}", kuiBaLon[i], kuiBaLat[j], kuiBaData[i][j]);
+                    list.add(map);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public ArrayList<Concentration> readConcentrationNC(String ncPath) {
         try {
             NetcdfFile ncFile = NetcdfFile.open(ncPath);
             //读取变量

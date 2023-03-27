@@ -69,9 +69,10 @@
             }
         });
     </script>
-    <script>
-        // 自定义的近地天空盒
-        let groundSkybox = new Cesium.SkyBox({
+    <script type="module">
+        //你自已的地址，在main.js中引入 
+        import './SkyBoxOnGround.js'
+        viewer.scene.skyBox = new Cesium.GroundSkyBox({
             sources: {
                 negativeX: './skyboxImage/west.png',
                 positiveX: './skyboxImage/east.png',
@@ -80,23 +81,19 @@
                 negativeZ: './skyboxImage/south.png',
                 positiveZ: './skyboxImage/north.png'
             }
-        })
+        });
 
-        // 自带的默认天空盒
-        let defaultSkybox = viewer.scene.skyBox;
-
-        // 渲染前监听并判断相机位置
-        viewer.scene.preUpdate.addEventListener(() => {
-            let position = viewer.scene.camera.position;
-            let cameraHeight = Cesium.Cartographic.fromCartesian(position).height;
-            if (cameraHeight < 240000) {
-                viewer.scene.skyBox = groundSkybox;
-                viewer.scene.skyAtmosphere.show = false;
-            } else {
-                viewer.scene.skyBox = defaultSkybox;
-                viewer.scene.skyAtmosphere.show = true;
-            }
-        })
+        // // 自定义的近地天空盒
+        // let groundSkybox = new Cesium.SkyBox({
+        //     sources: {
+        //         negativeX: './skyboxImage/west.png',
+        //         positiveX: './skyboxImage/east.png',
+        //         negativeY: './skyboxImage/top.png',
+        //         positiveY: './skyboxImage/bottom.png',
+        //         negativeZ: './skyboxImage/south.png',
+        //         positiveZ: './skyboxImage/north.png'
+        //     }
+        // })
 
     </script>
 </body>

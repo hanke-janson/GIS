@@ -22,7 +22,13 @@ public class TestNC {
     @Test
     public void readNCTest() {
         String filename = "D:\\idea_program\\tutorial\\src\\test\\resources\\Concentration.nc";
-        ncService.readNC(filename);
+        ncService.readConcentrationNC(filename);
+    }
+
+    @Test
+    public void readKuiBaNCTest() {
+        String filename = "C:/Users/admin/Desktop/溃坝输出案例数据/nc/h/h30.nc";
+        ncService.readKuiBaNC(filename);
     }
 
     /**
