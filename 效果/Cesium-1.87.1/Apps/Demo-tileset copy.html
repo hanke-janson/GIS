@@ -96,19 +96,19 @@
             var mapPosition = { x: lng, y: lat, z: cartographic.height };//cartographic.height的值始终为零。
             console.log(mapPosition);
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        // /**
-        //  * @description: 日照阴影效果模拟
-        //  * @param {*} _viewer
-        //  * @param {*} _speed：变化速率
-        //  * @return {*}
-        //  */
+        /**
+         * @description: 日照阴影效果模拟
+         * @param {*} _viewer
+         * @param {*} _speed：变化速率
+         * @return {*}
+         */
         function lightingShadowInit(_viewer, _speed) {
             _viewer.scene.globe.enableLighting = true;
             _viewer.shadows = true;
             _viewer.clock.multiplier = _speed;
         }
         // 调用
-        lightingShadowInit(viewer, 1000);
+        // lightingShadowInit(viewer, 1000);
 
 
 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3dtiles示例</title>
+    <style type="text/css">
+        html,
+        body,
+        #app {
+            height: 100%;
+        }
+
+        .button-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            z-index: 10;
+        }
+    </style>
+
+    <script
+        src="https://webapi.amap.com/maps?v=2.0&key=b4207dd9e89d3d6ee6dbcc4b5a58aff3&plugin=AMap.3DTilesLayer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.143/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.143/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.143/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@amap/three-layer/dist/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vuemap/layer-3dtiles/dist/index.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <div class="button-container">
+        <button onclick="show()">显示</button>
+        <button onclick="hide()">隐藏</button>
+        <button onclick="destroy()">销毁tiles</button>
+        <button onclick="create()">创建tiles</button>
+    </div>
+    <script type="text/javascript">
+        var center = [114.92530784597095, 35.78008743000986]
+        var map = new AMap.Map('app', {
+            center: center,
+            zoom: 16,
+            viewMode: '3D',
+            showBuildingBlock: false,
+            pitch: 55
+        })
+        map.on('click', (e) => {
+            console.log('点击的经纬度: ', e.lnglat.toArray())
+        })
+        map.add(new AMap.TileLayer.Satellite())
+        var layer = new AMap.ThreeLayer(map)
+        var tiles = null
+        //   layer.on('complete', () => {
+        //     var light = new THREE.AmbientLight('#ffffff', 1);
+        //     layer.add(light);
+        //     create()
+        //   })
+        console.log('layer: ', layer)
+        function show() {
+            tiles.show()
+        }
+        function hide() {
+            tiles.hide()
+        }
+        function destroy() {
+            tiles.destroy()
+        }
+        function create() {
+            tiles = new AMap.Layer3DTiles(layer, {
+                url: 'http://192.168.11.4:9000/zchj/xiaoquyu/tileset.json', // 3dtiles
+                position: center,
+                // mouseEvent: true,
+                debug: true
+            })
+            tiles.setRotation({
+                x: 0,
+                y: 0,
+                z: 0
+            })
+            tiles.setScale(1.5)
+            tiles.on('click', (e) => {
+                console.log('click: ', e)
+            })
+            tiles.on('mousemove', (e) => {
+                console.log('mouse move: ', e)
+            })
+            tiles.on('rightClick', (e) => {
+                console.log('right click: ', e)
+            })
+            tiles.setTranslate({ x: 15, y: 15, z: 0 })
+        }
+        
+    </script>
+</body>
+
+</html>
