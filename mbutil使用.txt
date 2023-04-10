@@ -1,0 +1,7 @@
+https://github.com/mapbox/mbutil
+https://www.jianshu.com/p/5f969c3b78a4
+
+python mb-util --scheme=tms mbtiles文件路径 png输入文件夹路径（不存在的才行）
+
+
+如果y需要反转，需要加参数--scheme=tms 

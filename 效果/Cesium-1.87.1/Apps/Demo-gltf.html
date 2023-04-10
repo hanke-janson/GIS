@@ -56,7 +56,7 @@
         imageryProvider: new Cesium.UrlTemplateImageryProvider({
           // 本地
           url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
-          maximumLevel: 14,
+          maximumLevel: 20,
         }),
         // // 加载地形数据
         // terrainProvider: Cesium.createWorldTerrain({
@@ -101,17 +101,17 @@
       // model_add(z);
 
       // 加载glTF模型
-      const modelEntity = viewer.entities.add({
-        name: "glTF模型",
-        position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
-        model: {
-          uri: "./桃园市某区域.gltf",
-          minimumPixelSize: 256,
-          scale: 1.0, // 调节模型大小
-        },
-      });
+    //   const modelEntity = viewer.entities.add({
+    //     name: "glTF模型",
+    //     position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
+    //     model: {
+    //       uri: "./桃园市某区域.gltf",
+    //       minimumPixelSize: 256,
+    //       scale: 1.0, // 调节模型大小
+    //     },
+    //   });
       // 聚焦模型
-      viewer.trackedEntity = modelEntity;
+    //   viewer.trackedEntity = modelEntity;
     </script>
   </body>
 </html>
