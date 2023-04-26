@@ -1,4 +1,6 @@
-PROJ9.1.1 文档机翻+理解
+PROJ9.2.0 文档机翻+理解
+
+> 当时使用版本为 9.0.1
 
 # conda 环境
 
@@ -433,3 +435,93 @@ cs2cs EPSG:4322 EPSG:4326
 坐标转换和变换
 
 ### 概要
+
+cct [-clostvz [args]] +opt[=arg] ... file ...
+
+or
+
+cct [-clostvz [args]] {object_definition} file ...
+
+其中 {object_definition} 是 proj_create() 可接受参数之一，前提是它表示坐标操作
+
+- a proj-string,
+- a WKT string,
+- an object code (like "EPSG:1671" "urn:ogc:def:coordinateOperation:EPSG::1671"),
+- an object name. e.g. "ITRF2014 to ETRF2014 (1)". 在这种情况下，由于无法保证唯一性，因此会应用试探法来确定适当的最佳匹配
+- a OGC URN combining references for concatenated operations (e.g. "urn:ogc:def:coordinateOperation,coordinateOperation:EPSG::3895,coordinateOperation:EPSG::1618")
+- a PROJJSON string. The jsonschema is at https://proj.org/schemas/v0.4/projjson.schema.json
+
+> 在 8.0.0 版本之前，只能使用 proj-strings 来实例化 cct 中的操作
+
+### 描述
+
+cct 是一个 4D 等价于 proj 的投影程序，对一组输入点进行坐标系变换。坐标系转换可以包括投影坐标和地理坐标之间的转换以及基准偏移的应用
+
+以下控制参数可以以任何顺序出现：
+
+`-c <x,y,z,t>` 为（最多）4 个输入参数指定输入列。默认为 1、2、3、4
+
+`-d <n>` 5.2.0 版中的新功能,指定要在输出中四舍五入的小数位数
+
+`-I` 进行逆变换
+
+`-t <time>, --time=<time>` 指定用于所有输入数据的固定观察时间
+
+`-z <height>, --height=<height>` 指定用于所有输入数据的固定观察高度
+
+`-s <n>, --skip-lines=<n>` 5.1.0 版本中的新功能,跳过前 n 行输入。这适用于任何类型的输入，无论它来自 STDIN、文件还是交互式用户输入
+
+`-v, --verbose` 将非必要但可能有用的信息写入 stderr。重复其他信息(-vv, -vvv, etc.)
+
+`--version` 打印版本号
+
++opt 参数与坐标操作参数相关联。用法因操作而异
+
+有关完整说明，请参阅[投影页面](https://proj.org/operations/projections/index.html#projections)
+
+cct 是一个首字母缩写词，意思是坐标转换和变换
+
+首字母缩略词是指 OGC 08-015r2/ISO-19111 标准“地理信息——坐标空间参考”中给出的定义，它定义了两类不同的坐标操作:
+
+- 坐标转换，这是输入和输出数据相同的坐标操作(例如,从地理坐标到笛卡尔坐标的转换)
+- 坐标变换，这是输入和输出数据不同的坐标操作(例如,参考系的变化)
+
+### 使用远程网格
+
+7.0.0 新版本中的功能
+
+如果 PROJ_NETWORK 环境变量设置为 ON，
+当本地不可用时，cct 将尝试使用存储在 CDN（内容交付网络）存储上的远程网格
+[网络功能](https://proj.org/usage/network.html#network)部分提供了更多详细信息
+
+### 例子
+
+1. 操作符规范描述了 cct 执行的操作
+
+```cmd
+echo 12 55 0 0 | cct +proj=utm +zone=32 +ellps=GRS80
+```
+
+会将输入的地理坐标转换为 UTM zone 32 坐标
+
+```cmd
+echo 12 55 | cct -z0 -t0 +proj=utm +zone=32 +ellps=GRS80
+```
+
+应该给出和 proj 命令相同的结果
+
+```cmd
+echo 12 55 | proj +proj=utm +zone=32 +ellps=GRS80
+```
+
+2. 将地理输入转换为 GRS80 椭球上的 UTM zone 32
+
+```cmd
+cct +proj=utm +ellps=GRS80 +zone=32
+```
+
+3. 上述情况的往返精度检查
+
+```cmd
+cct +proj=pipeline +proj=utm +ellps=GRS80 +zone=32 +step +step +inv
+```

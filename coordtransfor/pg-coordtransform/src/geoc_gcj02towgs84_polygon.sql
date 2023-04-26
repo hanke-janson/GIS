@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION "public"."geoc_gcj02towgs84_polygon"("source_geom" "public"."geometry")
+    CREATE OR REPLACE FUNCTION "public"."geoc_gcj02towgs84_polygon"("source_geom" "public"."geometry")
   RETURNS "public"."geometry" AS $BODY$
 DECLARE
     target_parts    geometry[];

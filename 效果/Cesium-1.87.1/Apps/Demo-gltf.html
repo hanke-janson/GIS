@@ -56,7 +56,7 @@
         imageryProvider: new Cesium.UrlTemplateImageryProvider({
           // 本地
           url: "http://localhost:8890/bm/map/{z}/{x}/{y}",
-          maximumLevel: 20,
+          maximumLevel: 14,
         }),
         // // 加载地形数据
         // terrainProvider: Cesium.createWorldTerrain({
@@ -66,6 +66,9 @@
       });
       // 去除logo
       viewer.cesiumWidget.creditContainer.style.display = "none";
+      // cesium.js 设置缩放最大最小限制
+      // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 1200;
+      // viewer.scene.screenSpaceCameraController.maximumZoomDistance = 2500;
       // viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false
       // // 设置相机视角位置
       // viewer.camera.setView({
@@ -101,17 +104,62 @@
       // model_add(z);
 
       // 加载glTF模型
-    //   const modelEntity = viewer.entities.add({
-    //     name: "glTF模型",
-    //     position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
-    //     model: {
-    //       uri: "./桃园市某区域.gltf",
-    //       minimumPixelSize: 256,
-    //       scale: 1.0, // 调节模型大小
-    //     },
-    //   });
+      const modelEntity = viewer.entities.add({
+        name: "glTF模型",
+        position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1796),
+        model: {
+          uri: "./模型合辑glTF/052D导弹驱逐舰.gltf",
+          // 最佳方式：提供标准比例模型，这里设为1即可
+          // 否则，只能一点点手动去调整模型比例大小
+          scale: 1.0, // 缩放比例
+          // 注意：如果设置最小和最大比例，你的模型会随着你的滚轮缩放而缩放
+          // minimumPixelSize: 128, // 最小像素大小
+          // maximumScale: 20000, // 模型的最大比例尺大小。 minimumPixelSize的上限
+          incrementallyLoadTextures: true, // 加载模型后纹理是否可以继续流入
+          runAnimations: true, // 是否应启动模型中指定的glTF动画
+          clampAnimations: true, // 指定glTF动画是否应在没有关键帧的持续时间内保持最后一个姿势
+          // 指定模型是否投射或接收来自光源的阴影 type:ShadowMode
+          // DISABLED 对象不投射或接收阴影;ENABLED 对象投射并接收阴影;CAST_ONLY  对象仅投射阴影;RECEIVE_ONLY  对象仅接收阴影
+          shadows: Cesium.ShadowMode.ENABLED,
+          heightReference: Cesium.HeightReference.NONE,
+        },
+      });
+      const modelEntity1 = viewer.entities.add({
+        name: "glTF模型",
+        position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1786),
+        model: {
+          uri: "./模型合辑glTF/054导弹护卫舰.gltf",
+          scale: 1.0, // 缩放比例
+          // minimumPixelSize: 128, // 最小像素大小
+          // maximumScale: 20000, // 模型的最大比例尺大小。 minimumPixelSize的上限
+          incrementallyLoadTextures: true, // 加载模型后纹理是否可以继续流入
+          runAnimations: true, // 是否应启动模型中指定的glTF动画
+          clampAnimations: true, // 指定glTF动画是否应在没有关键帧的持续时间内保持最后一个姿势
+          // 指定模型是否投射或接收来自光源的阴影 type:ShadowMode
+          // DISABLED 对象不投射或接收阴影;ENABLED 对象投射并接收阴影;CAST_ONLY  对象仅投射阴影;RECEIVE_ONLY  对象仅接收阴影
+          shadows: Cesium.ShadowMode.ENABLED,
+          heightReference: Cesium.HeightReference.NONE,
+        },
+      });
+      const modelEntity2 = viewer.entities.add({
+        name: "glTF模型",
+        position: Cesium.Cartesian3.fromDegrees(112.9459, 28.1776),
+        model: {
+          uri: "./模型合辑glTF/59式坦克.gltf",
+          scale: 1.0, // 缩放比例
+          // minimumPixelSize: 300, // 最小像素大小
+          // maximumScale: 128, // 模型的最大比例尺大小。 minimumPixelSize的上限
+          incrementallyLoadTextures: true, // 加载模型后纹理是否可以继续流入
+          runAnimations: true, // 是否应启动模型中指定的glTF动画
+          clampAnimations: true, // 指定glTF动画是否应在没有关键帧的持续时间内保持最后一个姿势
+          // 指定模型是否投射或接收来自光源的阴影 type:ShadowMode
+          // DISABLED 对象不投射或接收阴影;ENABLED 对象投射并接收阴影;CAST_ONLY  对象仅投射阴影;RECEIVE_ONLY  对象仅接收阴影
+          shadows: Cesium.ShadowMode.ENABLED,
+          heightReference: Cesium.HeightReference.NONE,
+        },
+      });
       // 聚焦模型
-    //   viewer.trackedEntity = modelEntity;
+      viewer.trackedEntity = modelEntity2;
     </script>
   </body>
 </html>

@@ -29,3 +29,7 @@ geoserver 地图发布 用插件可以金字塔切片
 使用<https://github.com/CesiumGS/obj2gltf> 可以将 obj 格式的模型转换为 glTF（.max 等格式的模型数据可使用 3dmax 打开）
 
 使用[CTB](https://github.com/geo-data/cesium-terrain-builder)将 tif 地形数据切为 terrain，服务器发布后用于 cesium 地形加载
+
+obj23dtiles -i ./LXA1A018005.obj –tileset <https://github.com/PrincessGod/objTo3d-tiles/blob/master/README_CN.md> 可能不好用
+
+obj2gltf -i model.obj -o model.gltf <https://github.com/CesiumGS/obj2gltf> 很好用
