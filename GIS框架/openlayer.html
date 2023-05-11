@@ -19,7 +19,33 @@
             // 将实例化的地图挂载到对应DOM,相当于vue的el
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: new ol.source.OSM() })
+                // new ol.layer.Tile({ source: new ol.source.OSM() })
+                new ol.layer.Tile({
+                    name: "img.net",
+                    source: new ol.source.XYZ({
+                        url: "http://221.239.26.252:3000/ditu/access/rest/services/2023_1M_03/Transfer?tilematrixset=EPSG%3A3857&Service=WMTS&Request=GetTile&Format=image%2Fwebp&TileMatrix={z}&TileCol={x}&TileRow={y}&Version=1.0.0",
+                        wrapX: false,
+                        tileLoadFunction: function (tile, src) {
+                            var client = new XMLHttpRequest();
+                            client.responseType = 'blob';
+                            client.addEventListener('loadend', function (evt) {
+                                const data = this.response;
+                                if (data !== undefined) {
+                                    tile.getImage().src = URL.createObjectURL(data);
+                                } else {
+                                    tile.setState(TileState.ERROR);
+                                }
+                            });
+                            client.addEventListener('error', function () {
+                                tile.setState(TileState.ERROR);
+                            });
+                            client.open('GET', src);
+                            client.setRequestHeader('x-gistack-token', 'eyJraWQiOiJrMSIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJhZG1pbkBnaXN1bmkuY29tIiwiYXVkIjoidXVtcyIsImV4cCI6MTY4Mzg3NTc3OCwianRpIjoiZkpqcE1Md1JoOWpKMURla01YR25KdyIsImlhdCI6MTY4MzI3MDk3OCwibmJmIjoxNjgzMjcwNjc4LCJzdWIiOiJkZ2R4aW5nY2hlIiwiaWQiOiJmZjgwODA4MTg2MGQ0ZmFlMDE4N2I4NjBiNWMyNjgwZSIsIm5hbWUiOiJkZ2R4aW5nY2hlIiwidHlwZSI6IjAiLCJjbGllbnRpZCI6bnVsbCwiZnJvbSI6InV1bXMiLCJleHBpcmVzIjoiMTY4Mzg3NTc3ODU3OCIsInJvbGVzIjpbXX0.N8IUO0NRiCXIm_8T1qJBoWw4yFz3KR7oV5b_eAVxHRu0dwltAG0FoXCd60_QPsMo7su6w2kqCUID_uOy-OZg2VBugjEyTkXBVVPUpllEvJLN1GXF1GiJeRW4B328oDLIg3HXYRaurWcKErUpSF2wzrE4yWzXhjshKiwAf6u0tFGmusQjZNGsBqWzJl4j4bmKmc0OPAxfVvFhnHIHfpql-S4kLlmp6LdBcTZi9sfXSBuD0kcVhAIGDqTx0BgmJETWprC22rzIoHJiFQ2HBjJmtNUvEx8TqvSm8a_L_-wVjH1Nv6itJgq6FlgRIgyNUPldgETnjlvyM7GouyHA-VJskg');
+                            client.setRequestHeader('security-token', 'uD608V8KgGdqFtSLSkxMRkCjnNxfYcegjkEmE0GzOja3US2Nca-wUE2_TED3zNKUz0kg06L3qngImN4b3QSXvkGcyiVTrhjjXux2O4gVX88.');
+                            client.send();
+                        }
+                    })
+                })
             ],
             // 设置地图以什么样的形式展示
             view: new ol.View({
@@ -31,6 +57,33 @@
                 projection: 'EPSG:4326',
             })
         })
+        // var imgnet = new ol.layer.Tile({
+        //     name: "img.net",
+        //     source: new ol.source.XYZ({
+        //         url: "http://221.239.26.252:3000/ditu/access/rest/services/2023_1M_03/Transfer?tilematrixset=EPSG%3A3857&Service=WMTS&Request=GetTile&Format=image%2Fwebp&TileMatrix={z}&TileCol={x}&TileRow={y}&Version=1.0.0",
+        //         wrapX: false,
+        //         tileLoadFunction: function (tile, src) {
+        //             var client = new XMLHttpRequest();
+        //             client.responseType = 'blob';
+        //             client.addEventListener('loadend', function (evt) {
+        //                 const data = this.response;
+        //                 if (data !== undefined) {
+        //                     tile.getImage().src = URL.createObjectURL(data);
+        //                 } else {
+        //                     tile.setState(TileState.ERROR);
+        //                 }
+        //             });
+        //             client.addEventListener('error', function () {
+        //                 tile.setState(TileState.ERROR);
+        //             });
+        //             client.open('GET', src);
+        //             client.setRequestHeader('x-gistack-token', 'eyJraWQiOiJrMSIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJhZG1pbkBnaXN1bmkuY29tIiwiYXVkIjoidXVtcyIsImV4cCI6MTY4Mzg3NTc3OCwianRpIjoiZkpqcE1Md1JoOWpKMURla01YR25KdyIsImlhdCI6MTY4MzI3MDk3OCwibmJmIjoxNjgzMjcwNjc4LCJzdWIiOiJkZ2R4aW5nY2hlIiwiaWQiOiJmZjgwODA4MTg2MGQ0ZmFlMDE4N2I4NjBiNWMyNjgwZSIsIm5hbWUiOiJkZ2R4aW5nY2hlIiwidHlwZSI6IjAiLCJjbGllbnRpZCI6bnVsbCwiZnJvbSI6InV1bXMiLCJleHBpcmVzIjoiMTY4Mzg3NTc3ODU3OCIsInJvbGVzIjpbXX0.N8IUO0NRiCXIm_8T1qJBoWw4yFz3KR7oV5b_eAVxHRu0dwltAG0FoXCd60_QPsMo7su6w2kqCUID_uOy-OZg2VBugjEyTkXBVVPUpllEvJLN1GXF1GiJeRW4B328oDLIg3HXYRaurWcKErUpSF2wzrE4yWzXhjshKiwAf6u0tFGmusQjZNGsBqWzJl4j4bmKmc0OPAxfVvFhnHIHfpql-S4kLlmp6LdBcTZi9sfXSBuD0kcVhAIGDqTx0BgmJETWprC22rzIoHJiFQ2HBjJmtNUvEx8TqvSm8a_L_-wVjH1Nv6itJgq6FlgRIgyNUPldgETnjlvyM7GouyHA-VJskg');
+        //             client.setRequestHeader('security-token', 'uD608V8KgGdqFtSLSkxMRkCjnNxfYcegjkEmE0GzOja3US2Nca-wUE2_TED3zNKUz0kg06L3qngImN4b3QSXvkGcyiVTrhjjXux2O4gVX88.');
+        //             client.send();
+        //         }
+        //     })
+        // });
+        // imgnet.setZIndex(1);
     </script>
 </body>
 
