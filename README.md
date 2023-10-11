@@ -35,3 +35,5 @@ geoserver 地图发布 用插件可以金字塔切片
 obj23dtiles -i ./LXA1A018005.obj –tileset <https://github.com/PrincessGod/objTo3d-tiles/blob/master/README_CN.md> 可能不好用
 
 obj2gltf -i model.obj -o model.gltf <https://github.com/CesiumGS/obj2gltf> 很好用
+
+geotools下不下来 就去这个[网站](<https://sourceforge.net/projects/geotools/files/>) 直接下jar包
